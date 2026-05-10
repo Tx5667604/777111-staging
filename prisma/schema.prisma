@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Phone {
+  id          String   @id @default(cuid())
+  brand       String
+  model       String
+  storage     String
+  color       String
+  condition   String
+  price       Int
+  imageUrl    String?
+  description String?
+  available   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model RepairService {
+  id           String   @id @default(cuid())
+  brand        String
+  model        String
+  repairType   String
+  basePartCost Int
+  laborCost    Int
+  currency     String   @default("UAH")
+  description  String?
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String
+  phoneModel  String
+  issue       String
+  imageUrl    String?
+  status      String   @default("new")
+  createdAt   DateTime @default(now())
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  author    String
+  text      String
+  rating    Int
+  date      DateTime @default(now())
+  avatarUrl String?
+}
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  title     String
+  excerpt   String
+  content   String?
+  imageUrl  String?
+  author    String
+  createdAt DateTime @default(now())
+}
+
+model RepairCase {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  beforeImage  String?
+  afterImage   String?
+  createdAt    DateTime @default(now())
+}
