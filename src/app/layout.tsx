@@ -5,26 +5,27 @@ import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
 });
 
 export const metadata: Metadata = {
-  title: "СервисМастер — Ремонт и продажа телефонов",
-  description: "Профессиональный ремонт телефонов, продажа восстановленных устройств. Быстро, качественно, с гарантией.",
-  keywords: ["ремонт телефонов", "восстановленные телефоны", "замена экрана", "замена батареи", "сервисный центр"],
-  authors: [{ name: "СервисМастер" }],
+  title: "Олександр Панібратенко — Ремонт телефонів у Вознесенську",
+  description: "Професійний ремонт телефонів у Вознесенську, Миколаївська область. Заміна екрана, акумулятора, розблокування, прошивка. Швидко, якісно, з гарантією.",
+  keywords: ["ремонт телефонів Вознесенськ", "заміна екрана", "заміна акумулятора", "розблокування iCloud", "ремонт смартфонів", "Миколаївська область"],
+  authors: [{ name: "Олександр Панібратенко" }],
   icons: {
     icon: "/logo.svg",
   },
   openGraph: {
-    title: "СервисМастер — Ремонт и продажа телефонов",
-    description: "Профессиональный ремонт телефонов, продажа восстановленных устройств. Быстро, качественно, с гарантией.",
+    title: "Олександр Панібратенко — Ремонт телефонів у Вознесенську",
+    description: "Професійний ремонт телефонів. Заміна екрана, акумулятора, розблокування та інші послуги.",
     type: "website",
+    locale: "uk_UA",
   },
 };
 
@@ -34,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" suppressHydrationWarning>
+    <html lang="uk" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >

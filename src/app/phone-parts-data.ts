@@ -47,7 +47,7 @@ export const brandPartsData: BrandParts[] = [
       { modelCode: 'iPhone 15 Pro Max', modelName: 'iPhone 15 Pro Max', parts: { display: display(1500, 3800, 950), battery: two(800, 1400, 550), back_cover: two(1200, 4500, 800), speaker: only(650, 500), glass: two(650, 1300, 700), charging_flex: two(450, 900, 450), camera: two(1200, 3500, 850), microphone: only(450, 450), buttons: only(500, 450), connector: only(450, 450) } },
       { modelCode: 'iPhone 16', modelName: 'iPhone 16', parts: { display: display(1000, 2500, 700), battery: two(650, 1000, 450), back_cover: two(900, 3200, 650), speaker: only(500, 400), glass: two(450, 900, 550), charging_flex: two(400, 800, 400), camera: two(800, 2000, 550), microphone: only(400, 400), buttons: only(450, 400), connector: only(400, 400) } },
       { modelCode: 'iPhone 16 Pro', modelName: 'iPhone 16 Pro', parts: { display: display(1500, 3500, 900), battery: two(800, 1400, 500), back_cover: two(1100, 4000, 750), speaker: only(600, 450), glass: two(600, 1200, 650), charging_flex: two(450, 900, 450), camera: two(1100, 3000, 800), microphone: only(450, 450), buttons: only(500, 450), connector: only(450, 450) } },
-      { modelCode: 'iPhone 16 Pro Max', modelName: 'iPhone 16 Pro Max', parts: { display: display(1700, 4200, 1000), battery: two(900, 1500, 600), back_cover: two(1300, 5000, 850), speaker: only(700, 550), glass: two(700, 1500, 750), charging_flex: two(500, 1000, 500), camera: two(1400, 4000, 1000), microphone: only(500, 500), buttons: only(550, 500), connector: only(500, 500) } },
+      { modelCode: 'iPhone 16 Pro Max', modelName: 'iPhone 16 Pro Max', parts: { display: display(1700, 4200, 1000), battery: two(900, 1500, 600), back_cover: two(1300, 5000, 850), speaker: only(700, 550), glass: two(700, 1500, 750), charging_flex: two(500, 1000, 500), camera: two(1400, 4000, 1000), microphone: only(500, 500), buttons: only(550, 500), connector: only(500, 500) } }
     ],
   },
   {
@@ -7780,7 +7780,7 @@ export const brandPartsData: BrandParts[] = [
           buttons: only(370, 150),
           connector: only(350, 150),
         },
-      },
+      }
     ],
   },
   {
@@ -10099,22 +10099,7 @@ export const brandPartsData: BrandParts[] = [
           connector: only(200, 150),
         },
       },
-      {
-        modelCode: 'Корпу',
-        modelName: 'Корпу',
-        parts: {
-          display: display(350, 600, 200),
-          battery: two(300, 400, 150),
-          back_cover: two(250, 300, 150),
-          speaker: only(200, 150),
-          glass: two(250, 300, 150),
-          charging_flex: two(200, 300, 150),
-          camera: two(300, 400, 200),
-          microphone: only(200, 150),
-          buttons: only(220, 150),
-          connector: only(200, 150),
-        },
-      }
+      
     ],
   },
   {
@@ -10522,22 +10507,7 @@ export const brandPartsData: BrandParts[] = [
           connector: only(350, 150),
         },
       },
-      {
-        modelCode: 'Tab P11 2nd Gen TB350FU',
-        modelName: 'Tab P11 2nd Gen TB350FU',
-        parts: {
-          display: display(500, 1000, 250),
-          battery: two(450, 800, 150),
-          back_cover: two(400, 700, 150),
-          speaker: only(350, 150),
-          glass: two(400, 700, 150),
-          charging_flex: two(350, 700, 150),
-          camera: two(450, 800, 200),
-          microphone: only(350, 150),
-          buttons: only(370, 150),
-          connector: only(350, 150),
-        },
-      },
+      
       {
         modelCode: 'Tab P11 Pro 2 Gen TB-132FU',
         modelName: 'Tab P11 Pro 2 Gen TB-132FU',
@@ -10586,22 +10556,7 @@ export const brandPartsData: BrandParts[] = [
           connector: only(350, 150),
         },
       },
-      {
-        modelCode: 'Tab P12 TB370FU',
-        modelName: 'Tab P12 TB370FU',
-        parts: {
-          display: display(500, 1000, 250),
-          battery: two(450, 800, 150),
-          back_cover: two(400, 700, 150),
-          speaker: only(350, 150),
-          glass: two(400, 700, 150),
-          charging_flex: two(350, 700, 150),
-          camera: two(450, 800, 200),
-          microphone: only(350, 150),
-          buttons: only(370, 150),
-          connector: only(350, 150),
-        },
-      },
+      
       {
         modelCode: 'Tab Plus TB351FU',
         modelName: 'Tab Plus TB351FU',
@@ -12453,7 +12408,7 @@ export const brandPartsData: BrandParts[] = [
       { modelCode: '11 Pro', modelName: 'Realme 11 Pro', parts: { display: display(750, 1500, 400), battery: two(500, 700, 250), back_cover: two(400, 600, 200), speaker: only(250, 200), glass: two(250, 400, 250), charging_flex: two(200, 300, 150), camera: two(500, 800, 300), microphone: only(150, 150), buttons: only(150, 150), connector: only(150, 150) } },
       { modelCode: '12 Pro', modelName: 'Realme 12 Pro', parts: { display: display(800, 1600, 400), battery: two(500, 700, 250), back_cover: two(400, 600, 200), speaker: only(250, 200), glass: two(250, 400, 250), charging_flex: two(200, 300, 150), camera: two(500, 800, 300), microphone: only(150, 150), buttons: only(150, 150), connector: only(150, 150) } },
       { modelCode: 'GT Neo', modelName: 'Realme GT Neo', parts: { display: display(800, 1600, 400), battery: two(500, 700, 250), back_cover: two(400, 600, 200), speaker: only(250, 200), glass: two(250, 400, 250), charging_flex: two(200, 300, 150), camera: two(500, 800, 300), microphone: only(150, 150), buttons: only(150, 150), connector: only(150, 150) } },
-      { modelCode: 'GT 6', modelName: 'Realme GT 6', parts: { display: display(1000, 2000, 500), battery: two(600, 900, 300), back_cover: two(500, 800, 250), speaker: only(300, 250), glass: two(300, 500, 300), charging_flex: two(250, 400, 200), camera: two(600, 1000, 350), microphone: only(200, 200), buttons: only(200, 200), connector: only(200, 200) } },
+      { modelCode: 'GT 6', modelName: 'Realme GT 6', parts: { display: display(1000, 2000, 500), battery: two(600, 900, 300), back_cover: two(500, 800, 250), speaker: only(300, 250), glass: two(300, 500, 300), charging_flex: two(250, 400, 200), camera: two(600, 1000, 350), microphone: only(200, 200), buttons: only(200, 200), connector: only(200, 200) } }
     ],
   },
   {
@@ -16022,7 +15977,7 @@ export const brandPartsData: BrandParts[] = [
           buttons: only(220, 150),
           connector: only(200, 150),
         },
-      },
+      }
     ],
   },
   {

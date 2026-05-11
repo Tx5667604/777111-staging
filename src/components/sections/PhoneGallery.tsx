@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { phones as phonesData } from '@/app/data'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Smartphone, Info } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
@@ -41,16 +42,9 @@ const brandLogos: Record<string, string> = {
 }
 
 export default function PhoneGallery() {
-  const [phones, setPhones] = useState<Phone[]>([])
+  const [phones] = useState(phonesData)
   const [filter, setFilter] = useState('all')
   const [selectedPhone, setSelectedPhone] = useState<Phone | null>(null)
-
-  useEffect(() => {
-    fetch('/api/phones')
-      .then((res) => res.json())
-      .then(setPhones)
-      .catch(console.error)
-  }, [])
 
   const filteredPhones = filter === 'all'
     ? phones
@@ -70,10 +64,10 @@ export default function PhoneGallery() {
             Каталог
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mt-3">
-            Витрина восстановленных телефонов
+            Відновлені телефони
           </h2>
           <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
-            Качественные восстановленные устройства по доступным ценам с гарантией
+            Якісні відновлені пристрої за доступними цінами з гарантією
           </p>
         </motion.div>
 
@@ -81,7 +75,7 @@ export default function PhoneGallery() {
         <div className="flex justify-center mb-10">
           <Tabs value={filter} onValueChange={setFilter}>
             <TabsList>
-              <TabsTrigger value="all">Все</TabsTrigger>
+              <TabsTrigger value="all">Всі</TabsTrigger>
               <TabsTrigger value="Apple">Apple</TabsTrigger>
               <TabsTrigger value="Samsung">Samsung</TabsTrigger>
               <TabsTrigger value="Xiaomi">Xiaomi</TabsTrigger>
@@ -141,7 +135,7 @@ export default function PhoneGallery() {
 
                     <div className="flex items-center justify-between">
                       <p className="text-2xl font-bold text-primary">
-                        {phone.price.toLocaleString('ru-RU')} ₴
+                        {phone.price.toLocaleString('uk-UA')} ₴
                       </p>
                       <Button
                         variant="outline"
@@ -150,7 +144,7 @@ export default function PhoneGallery() {
                         className="gap-1"
                       >
                         <Info className="w-3 h-3" />
-                        Подробнее
+                        Детальніше
                       </Button>
                     </div>
                   </CardContent>
@@ -163,7 +157,7 @@ export default function PhoneGallery() {
         {filteredPhones.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">
             <Smartphone className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>Нет доступных телефонов в этой категории</p>
+            <p>Немає доступних телефонів у цій категорії</p>
           </div>
         )}
 
@@ -177,7 +171,7 @@ export default function PhoneGallery() {
                     {selectedPhone.brand} {selectedPhone.model}
                   </DialogTitle>
                   <DialogDescription>
-                    Восстановленное устройство с гарантией
+                    Відновлений пристрій з гарантією
                   </DialogDescription>
                 </DialogHeader>
 
@@ -206,7 +200,7 @@ export default function PhoneGallery() {
                     <Badge variant="secondary">{selectedPhone.storage}</Badge>
                     <Badge variant="secondary">{selectedPhone.color}</Badge>
                     {selectedPhone.available && (
-                      <Badge className="bg-green-100 text-green-700 hover:bg-green-100">В наличии</Badge>
+                      <Badge className="bg-green-100 text-green-700 hover:bg-green-100">В наявності</Badge>
                     )}
                   </div>
 
@@ -218,10 +212,10 @@ export default function PhoneGallery() {
 
                   <div className="flex items-center justify-between pt-2">
                     <p className="text-3xl font-bold text-primary">
-                      {selectedPhone.price.toLocaleString('ru-RU')} ₴
+                      {selectedPhone.price.toLocaleString('uk-UA')} ₴
                     </p>
                     <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                      Заказать
+                      Замовити
                     </Button>
                   </div>
                 </div>

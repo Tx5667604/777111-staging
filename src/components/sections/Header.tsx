@@ -2,18 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Phone, Menu, X, Wrench } from 'lucide-react'
+import { MapPin, Phone, Menu, X, Wrench } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
 
 const navLinks = [
-  { href: '#hero', label: 'Главная' },
-  { href: '#calculator', label: 'Прайс-лист' },
-  { href: '#gallery', label: 'Витрина' },
-  { href: '#cases', label: 'Наши работы' },
-  { href: '#reviews', label: 'Отзывы' },
+  { href: '#hero', label: 'Головна' },
+  { href: '#calculator', label: 'Ціни' },
+  { href: '#gallery', label: 'Товари' },
+  { href: '#cases', label: 'Роботи' },
   { href: '#blog', label: 'Блог' },
-  { href: '#contacts', label: 'Контакты' },
+  { href: '#contacts', label: 'Контакти' },
 ]
 
 export default function Header() {
@@ -59,7 +58,7 @@ export default function Header() {
               <Wrench className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
             </div>
             <span className="text-lg sm:text-xl font-bold text-foreground">
-              Сервис<span className="text-primary">Мастер</span>
+              Олександр <span className="text-primary">Ремонт</span>
             </span>
           </motion.div>
 
@@ -76,15 +75,27 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Phone CTA + Mobile Menu */}
-          <div className="flex items-center gap-3">
+          {/* Phone + Route CTA + Mobile Menu */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="hidden sm:inline-flex border-primary/30 text-primary hover:bg-primary/5 hover:text-primary gap-1 text-xs px-2.5"
+            >
+              <a href="https://www.google.com/maps/dir/?api=1&destination=47.5627,31.3382" target="_blank" rel="noopener noreferrer">
+                <MapPin className="w-3.5 h-3.5" />
+                Маршрут
+              </a>
+            </Button>
+
             <Button
               asChild
               className="hidden sm:flex bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
             >
-              <a href="tel:+380441234567">
+              <a href="tel:+380960777111">
                 <Phone className="w-4 h-4" />
-                +38 (044) 123-45-67
+                +38 (096) 077-71-11
               </a>
             </Button>
 
@@ -92,8 +103,20 @@ export default function Header() {
               asChild
               className="sm:hidden size-10 bg-primary hover:bg-primary/90 text-primary-foreground p-0"
             >
-              <a href="tel:+380441234567">
+              <a href="tel:+380960777111">
                 <Phone className="w-4 h-4" />
+              </a>
+            </Button>
+
+            {/* Mobile Route Button */}
+            <Button
+              asChild
+              variant="outline"
+              size="icon"
+              className="sm:hidden size-10 border-primary/30 text-primary hover:bg-primary/5 p-0"
+            >
+              <a href="https://www.google.com/maps/dir/?api=1&destination=47.5627,31.3382" target="_blank" rel="noopener noreferrer">
+                <MapPin className="w-4 h-4" />
               </a>
             </Button>
 
@@ -104,7 +127,7 @@ export default function Header() {
                   variant="ghost"
                   size="icon"
                   className="lg:hidden"
-                  aria-label="Открыть меню"
+                  aria-label="Відкрити меню"
                 >
                   <Menu className="w-5 h-5" />
                 </Button>
@@ -115,7 +138,7 @@ export default function Header() {
                     <Wrench className="w-4 h-4 text-primary-foreground" />
                   </div>
                   <span className="font-bold">
-                    Сервис<span className="text-primary">Мастер</span>
+                    Олександр <span className="text-primary">Ремонт</span>
                   </span>
                 </SheetTitle>
                 <nav className="flex flex-col gap-1">
@@ -132,14 +155,24 @@ export default function Header() {
                     </motion.button>
                   ))}
                 </nav>
-                <div className="mt-8 pt-6 border-t">
+                <div className="mt-8 pt-6 border-t space-y-2">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full border-primary/30 text-primary hover:bg-primary/5 gap-2"
+                  >
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=47.5627,31.3382" target="_blank" rel="noopener noreferrer">
+                      <MapPin className="w-4 h-4" />
+                      Прокласти маршрут
+                    </a>
+                  </Button>
                   <Button
                     asChild
                     className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
                   >
-                    <a href="tel:+380441234567">
+                    <a href="tel:+380960777111">
                       <Phone className="w-4 h-4" />
-                      +38 (044) 123-45-67
+                      +38 (096) 077-71-11
                     </a>
                   </Button>
                 </div>

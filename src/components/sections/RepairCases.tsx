@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { repairCases as casesData } from '@/app/data'
 import { motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Wrench } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
@@ -31,15 +32,8 @@ const afterColors = [
 ]
 
 export default function RepairCases() {
-  const [cases, setCases] = useState<RepairCase[]>([])
+  const [cases] = useState(casesData)
   const [currentIndex, setCurrentIndex] = useState(0)
-
-  useEffect(() => {
-    fetch('/api/cases')
-      .then((res) => res.json())
-      .then(setCases)
-      .catch(console.error)
-  }, [])
 
   const nextCase = () => {
     setCurrentIndex((prev) => (prev + 1) % cases.length)
@@ -62,13 +56,13 @@ export default function RepairCases() {
           className="text-center mb-16"
         >
           <span className="text-primary font-semibold text-sm uppercase tracking-wider">
-            Портфолио
+            Портфоліо
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mt-3">
-            Наши работы — до и после
+            Мої роботи — до та після
           </h2>
           <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
-            Убедитесь в качестве нашего ремонта на реальных примерах
+            Переконайтесь у якості ремонту на реальних прикладах
           </p>
         </motion.div>
 
@@ -92,7 +86,7 @@ export default function RepairCases() {
                     >
                       <div className="text-center text-white">
                         <Wrench className="w-12 h-12 mx-auto mb-2 opacity-80" />
-                        <p className="text-lg font-semibold opacity-90">До ремонта</p>
+                        <p className="text-lg font-semibold opacity-90">До ремонту</p>
                       </div>
                     </div>
                     <Badge className="absolute top-3 left-3 bg-red-500/90 text-white hover:bg-red-500/90">
@@ -111,11 +105,11 @@ export default function RepairCases() {
                         <svg className="w-12 h-12 mx-auto mb-2 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
-                        <p className="text-lg font-semibold opacity-90">После ремонта</p>
+                        <p className="text-lg font-semibold opacity-90">Після ремонту</p>
                       </div>
                     </div>
                     <Badge className="absolute top-3 left-3 bg-emerald-500/90 text-white hover:bg-emerald-500/90">
-                      После
+                      Після
                     </Badge>
                   </div>
                 </div>
@@ -139,7 +133,7 @@ export default function RepairCases() {
               size="icon"
               onClick={prevCase}
               disabled={cases.length <= 1}
-              aria-label="Предыдущий кейс"
+              aria-label="Попередній кейс"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
@@ -164,7 +158,7 @@ export default function RepairCases() {
               size="icon"
               onClick={nextCase}
               disabled={cases.length <= 1}
-              aria-label="Следующий кейс"
+              aria-label="Наступний кейс"
             >
               <ArrowRight className="w-4 h-4" />
             </Button>

@@ -5,7 +5,6 @@ import { motion } from 'framer-motion'
 import {
   MapPin,
   Phone,
-  Mail,
   Clock,
   Send,
   Loader2,
@@ -22,27 +21,21 @@ import { toast } from 'sonner'
 const contactInfo = [
   {
     icon: MapPin,
-    title: 'Адрес',
-    text: 'г. Киев, ул. Крещатик 22',
-    subtext: 'м. Крещатик, 2 мин пешком',
+    title: 'Адреса',
+    text: 'м. Вознесенськ, Миколаївська обл., Центральний ринок, сектор Б, контейнер 96',
+    subtext: '',
   },
   {
     icon: Phone,
     title: 'Телефон',
-    text: '+38 (044) 123-45-67',
-    subtext: '+38 (067) 123-45-67',
-  },
-  {
-    icon: Mail,
-    title: 'Email',
-    text: 'info@servicemaster.ua',
-    subtext: 'Ответим в течение часа',
+    text: '+38 (096) 077-71-11',
+    subtext: '',
   },
   {
     icon: Clock,
-    title: 'Время работы',
-    text: 'Пн-Пт: 9:00 — 19:00',
-    subtext: 'Сб: 10:00 — 16:00 | Вс: выходной',
+    title: 'Графік роботи',
+    text: 'Вт–Нд: 9:00 — 16:00',
+    subtext: 'Пн: вихідний',
   },
 ]
 
@@ -53,16 +46,27 @@ const socialLinks = [
   { icon: Phone, label: 'WhatsApp', href: '#' },
 ]
 
+const TG_TOKEN = '8670354731:AAF1gyLmL30HweAgC2VPbTkL2efXNlo8VkU'
+const TG_CHAT_ID = 5651005104
+
+function sendTG(text: string) {
+  fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'HTML' })
+  }).catch(() => {})
+}
+
 export default function Contacts() {
   const [formName, setFormName] = useState('')
-  const [formEmail, setFormEmail] = useState('')
+  const [formPhone, setFormPhone] = useState('')
   const [formMessage, setFormMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formName.trim() || !formEmail.trim() || !formMessage.trim()) {
-      toast.error('Заполните все поля')
+    if (!formName.trim() || !formPhone.trim() || !formMessage.trim()) {
+      toast.error('Заповніть всі поля')
       return
     }
 
@@ -70,12 +74,18 @@ export default function Contacts() {
     try {
       // Just simulate sending a contact form (could extend with an API)
       await new Promise((resolve) => setTimeout(resolve, 800))
-      toast.success('Сообщение отправлено! Мы свяжемся с вами в ближайшее время.')
+      toast.success("Повідомлення надіслано! Я зв'яжуся з вами найближчим часом.")
+      sendTG(
+        `<b>📩 Нове повідомлення з сайту!</b>\n\n` +
+        `<b>Ім'я:</b> ${formName}\n` +
+        `<b>Телефон:</b> ${formPhone}\n` +
+        `<b>Повідомлення:</b> ${formMessage}`
+      )
       setFormName('')
-      setFormEmail('')
+      setFormPhone('')
       setFormMessage('')
     } catch {
-      toast.error('Ошибка отправки. Попробуйте ещё раз.')
+      toast.error('Помилка надсилання. Спробуйте ще раз.')
     } finally {
       setLoading(false)
     }
@@ -92,13 +102,13 @@ export default function Contacts() {
           className="text-center mb-16"
         >
           <span className="text-primary font-semibold text-sm uppercase tracking-wider">
-            Контакты
+            Контакти
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mt-3">
-            Как нас найти
+            Як нас знайти
           </h2>
           <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
-            Приезжайте к нам или свяжитесь любым удобным способом
+            Приходьте або зв'яжіться зручним для вас способом
           </p>
         </motion.div>
 
@@ -133,7 +143,7 @@ export default function Contacts() {
 
             {/* Social media */}
             <div>
-              <p className="font-medium text-foreground mb-3">Мы в социальных сетях:</p>
+              <p className="font-medium text-foreground mb-3">Ми в соціальних мережах:</p>
               <div className="flex gap-3">
                 {socialLinks.map((social, index) => (
                   <motion.a
@@ -158,17 +168,27 @@ export default function Contacts() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <div className="rounded-xl overflow-hidden h-80 lg:h-full min-h-[320px] shadow-lg">
+            <a
+              href="https://www.google.com/maps/dir/?api=1&destination=47.5627,31.3382"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded-xl overflow-hidden h-80 lg:h-full min-h-[320px] shadow-lg hover:shadow-xl transition-shadow group relative"
+            >
               <iframe
-                src="https://www.openstreetmap.org/export/embed.html?bbox=30.5100%2C50.4450%2C30.5250%2C50.4550&layer=mapnik&marker=50.4501%2C30.5175"
+                src="https://www.google.com/maps?q=47.5627,31.3382&hl=uk&z=15&output=embed"
                 width="100%"
                 height="100%"
-                style={{ border: 0, minHeight: '320px' }}
+                style={{ border: 0, minHeight: '320px', pointerEvents: 'none' }}
                 allowFullScreen
                 loading="lazy"
-                title="Карта расположения СервисМастер"
+                title="Карта розташування"
               />
-            </div>
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-end justify-center pb-3 pointer-events-none">
+                <span className="bg-white/90 text-gray-800 text-xs font-medium px-3 py-1.5 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                  🗺️ Прокласти маршрут в Google Maps
+                </span>
+              </div>
+            </a>
           </motion.div>
         </div>
 
@@ -182,37 +202,37 @@ export default function Contacts() {
           <Card className="max-w-2xl mx-auto">
             <CardContent className="p-6 sm:p-8">
               <h3 className="text-lg font-semibold text-center mb-6">
-                Напишите нам
+                Напишіть нам
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="contact-name">Имя</Label>
+                    <Label htmlFor="contact-name">Ім'я</Label>
                     <Input
                       id="contact-name"
-                      placeholder="Ваше имя"
+                      placeholder="Ваше ім'я"
                       value={formName}
                       onChange={(e) => setFormName(e.target.value)}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="contact-email">Email</Label>
+                    <Label htmlFor="contact-phone">Телефон</Label>
                     <Input
-                      id="contact-email"
-                      type="email"
-                      placeholder="your@email.com"
-                      value={formEmail}
-                      onChange={(e) => setFormEmail(e.target.value)}
+                      id="contact-phone"
+                      type="tel"
+                      placeholder="+38 (0XX) XXX-XX-XX"
+                      value={formPhone}
+                      onChange={(e) => setFormPhone(e.target.value)}
                       required
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="contact-message">Сообщение</Label>
+                  <Label htmlFor="contact-message">Повідомлення</Label>
                   <Textarea
                     id="contact-message"
-                    placeholder="Ваше сообщение..."
+                    placeholder="Ваше повідомлення..."
                     value={formMessage}
                     onChange={(e) => setFormMessage(e.target.value)}
                     rows={4}
@@ -227,12 +247,12 @@ export default function Contacts() {
                   {loading ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Отправка...
+                      Надсилання...
                     </>
                   ) : (
                     <>
                       <Send className="w-4 h-4 mr-2" />
-                      Отправить сообщение
+                      Надіслати повідомлення
                     </>
                   )}
                 </Button>

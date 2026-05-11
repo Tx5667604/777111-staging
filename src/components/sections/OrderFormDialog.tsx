@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Upload, X, Loader2 } from 'lucide-react'
+import { Upload, X, Loader2, Smartphone, Wrench, Calculator } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 
@@ -23,6 +22,30 @@ interface OrderFormDialogProps {
   estimatedPrice?: number
 }
 
+const TG_TOKEN = '8670354731:AAF1gyLmL30HweAgC2VPbTkL2efXNlo8VkU'
+const TG_CHAT_ID = 5651005104
+
+async function sendTG(text: string, imageBlob?: Blob) {
+  try {
+    if (imageBlob) {
+      const formData = new FormData()
+      formData.append('chat_id', String(TG_CHAT_ID))
+      formData.append('photo', imageBlob, 'photo.jpg')
+      formData.append('caption', text)
+      formData.append('parse_mode', 'HTML')
+      await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, {
+        method: 'POST', body: formData
+      })
+    } else {
+      await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'HTML' })
+      })
+    }
+  } catch {}
+}
+
 export default function OrderFormDialog({
   open,
   onOpenChange,
@@ -30,10 +53,7 @@ export default function OrderFormDialog({
   repairType,
   estimatedPrice,
 }: OrderFormDialogProps) {
-  const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
-  const [model, setModel] = useState(phoneModel)
-  const [issue, setIssue] = useState(repairType ? `Требуется: ${repairType}` : '')
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -58,74 +78,70 @@ export default function OrderFormDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name.trim() || !phone.trim() || !model.trim() || !issue.trim()) {
-      toast.error('Пожалуйста, заполните все обязательные поля')
+    if (!phone.trim()) {
+      toast.error('Будь ласка, вкажіть номер телефону')
       return
     }
 
     setLoading(true)
-    try {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name.trim(),
-          phone: phone.trim(),
-          phoneModel: model.trim(),
-          issue: issue.trim(),
-          imageUrl: imagePreview,
-        }),
-      })
 
-      if (!res.ok) {
-        throw new Error('Ошибка при создании заказа')
-      }
-
-      toast.success('Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.')
-      setName('')
-      setPhone('')
-      setModel(phoneModel)
-      setIssue(repairType ? `Требуется: ${repairType}` : '')
-      setImagePreview(null)
-      onOpenChange(false)
-    } catch {
-      toast.error('Произошла ошибка. Попробуйте ещё раз.')
-    } finally {
-      setLoading(false)
+    let imageBlob: Blob | undefined
+    if (imagePreview) {
+      try {
+        const resp = await fetch(imagePreview)
+        imageBlob = await resp.blob()
+      } catch {}
     }
+
+    await new Promise((resolve) => setTimeout(resolve, 800))
+
+    toast.success('Заявку успішно надіслано! Я зв\'яжуся з вами найближчим часом.')
+    const priceText = estimatedPrice ? `\n<b>Вартість:</b> ${estimatedPrice.toLocaleString('uk-UA')} ₴` : ''
+    const issueText = repairType ? `Заміна: ${repairType}` : 'Потрібен ремонт'
+    await sendTG(
+      `<b>💰 Нова заявка!</b>\n\n` +
+      `<b>Телефон для зв'язку:</b> ${phone}\n` +
+      `<b>Модель:</b> ${phoneModel}\n` +
+      `<b>Проблема:</b> ${issueText}${priceText}`,
+      imageBlob
+    )
+    setPhone('')
+    setImagePreview(null)
+    setLoading(false)
+    onOpenChange(false)
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl">Оформить заявку на ремонт</DialogTitle>
+          <DialogTitle className="text-xl">Заявка на ремонт</DialogTitle>
           <DialogDescription>
-            Заполните форму, и мы свяжемся с вами для подтверждения
+            Перевірте вибране та вкажіть телефон для зв'язку
           </DialogDescription>
         </DialogHeader>
 
-        {estimatedPrice && (
-          <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 text-center">
-            <p className="text-sm text-muted-foreground">Ориентировочная стоимость:</p>
-            <p className="text-xl font-bold text-primary">{estimatedPrice.toLocaleString('ru-RU')} ₴</p>
+        {/* Selected info summary */}
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-2">
+          <div className="flex items-center gap-2 text-sm">
+            <Smartphone className="w-4 h-4 text-primary shrink-0" />
+            <span className="font-medium">{phoneModel}</span>
           </div>
-        )}
+          <div className="flex items-center gap-2 text-sm">
+            <Wrench className="w-4 h-4 text-primary shrink-0" />
+            <span>{repairType}</span>
+          </div>
+          {estimatedPrice && (
+            <div className="flex items-center gap-2 text-sm">
+              <Calculator className="w-4 h-4 text-primary shrink-0" />
+              <span className="font-bold text-primary">{estimatedPrice.toLocaleString('uk-UA')} ₴</span>
+            </div>
+          )}
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Имя *</Label>
-            <Input
-              id="name"
-              placeholder="Ваше имя"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phone">Телефон *</Label>
+            <Label htmlFor="phone">Ваш номер телефону *</Label>
             <Input
               id="phone"
               type="tel"
@@ -133,34 +149,13 @@ export default function OrderFormDialog({
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               required
+              autoFocus
             />
+            <p className="text-xs text-muted-foreground">Я зателефоную вам для підтвердження</p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="model">Модель устройства *</Label>
-            <Input
-              id="model"
-              placeholder="Например: iPhone 14"
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="issue">Описание неисправности *</Label>
-            <Textarea
-              id="issue"
-              placeholder="Опишите проблему..."
-              value={issue}
-              onChange={(e) => setIssue(e.target.value)}
-              rows={3}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Фото проблемы</Label>
+            <Label>Фото проблеми (необов'язково)</Label>
             {imagePreview ? (
               <div className="relative inline-block">
                 <img
@@ -183,7 +178,7 @@ export default function OrderFormDialog({
                 className="w-full h-24 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors"
               >
                 <Upload className="w-5 h-5" />
-                <span className="text-sm">Загрузить фото</span>
+                <span className="text-sm">Завантажити фото</span>
               </button>
             )}
             <input
@@ -203,10 +198,10 @@ export default function OrderFormDialog({
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Отправка...
+                Надсилання...
               </>
             ) : (
-              'Отправить заявку'
+              'Надіслати заявку'
             )}
           </Button>
         </form>

@@ -6,7 +6,7 @@ import Advantages from '@/components/sections/Advantages'
 import PriceCalculator from '@/components/sections/PriceCalculator'
 import PhoneGallery from '@/components/sections/PhoneGallery'
 import RepairCases from '@/components/sections/RepairCases'
-import Reviews from '@/components/sections/Reviews'
+
 import Blog from '@/components/sections/Blog'
 import Appointment from '@/components/sections/Appointment'
 import Contacts from '@/components/sections/Contacts'
@@ -22,7 +22,6 @@ export default function Home() {
         <PriceCalculator />
         <PhoneGallery />
         <RepairCases />
-        <Reviews />
         <Blog />
         <Appointment />
         <Contacts />

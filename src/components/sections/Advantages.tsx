@@ -1,44 +1,26 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Shield, CheckCircle, Clock, BadgePercent, Award, Search } from 'lucide-react'
+import { CheckCircle, BadgePercent, Search } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 
 const advantages = [
   {
-    icon: Shield,
-    title: 'Гарантия на все работы',
-    description: 'Предоставляем гарантию от 6 до 12 месяцев на все виды ремонта и заменённые детали.',
-    color: 'bg-emerald-50 text-emerald-600',
-  },
-  {
     icon: CheckCircle,
-    title: 'Оригинальные запчасти',
-    description: 'Используем только оригинальные или сертифицированные аналоги от проверенных поставщиков.',
+    title: 'Запчастини: копії та оригінали',
+    description: 'Запчастини копії та оригінали — залежно від моделі телефону. Пропонуємо різні варіанти під будь-який бюджет.',
     color: 'bg-blue-50 text-blue-600',
   },
   {
-    icon: Clock,
-    title: 'Ремонт за 30 минут',
-    description: 'Большинство ремонтов выполняется в присутствии клиента за 30–60 минут.',
-    color: 'bg-orange-50 text-orange-600',
-  },
-  {
     icon: BadgePercent,
-    title: 'Доступные цены',
-    description: 'Честное ценообразование без скрытых наценок. Цена, которую называют до начала ремонта.',
+    title: 'Доступні ціни',
+    description: 'Ціна на сайті вказана з урахуванням вартості запчастини та вартості роботи майстра.',
     color: 'bg-purple-50 text-purple-600',
   },
   {
-    icon: Award,
-    title: 'Опытные мастера',
-    description: 'Наши специалисты имеют более 5 лет опыта и регулярно проходят сертификацию.',
-    color: 'bg-amber-50 text-amber-600',
-  },
-  {
     icon: Search,
-    title: 'Бесплатная диагностика',
-    description: 'Определим проблему бесплатно, даже если вы решите не ремонтировать у нас.',
+    title: 'Безкоштовна діагностика',
+    description: 'Визначимо проблему безкоштовно, навіть якщо ви вирішите не ремонтувати.',
     color: 'bg-rose-50 text-rose-600',
   },
 ]
@@ -66,24 +48,6 @@ export default function Advantages() {
   return (
     <section id="advantages" className="py-20 sm:py-28 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
-          <span className="text-primary font-semibold text-sm uppercase tracking-wider">
-            Почему мы
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mt-3">
-            Наши преимущества
-          </h2>
-          <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
-            Мы делаем всё, чтобы вы остались довольны — от первого звонка до получения
-            отремонтированного устройства
-          </p>
-        </motion.div>
 
         <motion.div
           variants={containerVariants}

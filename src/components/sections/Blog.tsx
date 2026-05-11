@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Calendar, ArrowRight, BookOpen } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { blogPosts as blogData } from '@/app/data'
 
 interface BlogPost {
   id: string
@@ -25,14 +25,7 @@ const blogGradients = [
 const blogIcons = ['🔋', '🔧', '⚠️']
 
 export default function Blog() {
-  const [posts, setPosts] = useState<BlogPost[]>([])
-
-  useEffect(() => {
-    fetch('/api/blog')
-      .then((res) => res.json())
-      .then(setPosts)
-      .catch(console.error)
-  }, [])
+  const posts = blogData
 
   if (posts.length === 0) return null
 
@@ -50,10 +43,10 @@ export default function Blog() {
             Блог
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mt-3">
-            Полезные статьи
+            Корисні статті
           </h2>
           <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
-            Советы и рекомендации по уходу за вашими устройствами
+            Поради та рекомендації з догляду за вашими пристроями
           </p>
         </motion.div>
 
@@ -81,7 +74,7 @@ export default function Blog() {
 
                 <CardContent className="p-5">
                   <Badge variant="secondary" className="mb-3 text-xs">
-                    Статья
+                    Стаття
                   </Badge>
 
                   <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
@@ -95,14 +88,14 @@ export default function Blog() {
                   <div className="flex items-center justify-between pt-2 border-t">
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <Calendar className="w-3 h-3" />
-                      {new Date(post.createdAt).toLocaleDateString('ru-RU', {
+                      {new Date(post.createdAt).toLocaleDateString('uk-UA', {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric',
                       })}
                     </div>
                     <button className="text-primary text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                      Читать далее
+                      Читати далі
                       <ArrowRight className="w-3 h-3" />
                     </button>
                   </div>

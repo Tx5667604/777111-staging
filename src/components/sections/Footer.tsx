@@ -1,24 +1,23 @@
 'use client'
 
-import { Wrench, Phone, Mail, MapPin, Instagram, MessageCircle, Heart } from 'lucide-react'
+import { Wrench, Phone, MapPin, Instagram, MessageCircle, Heart } from 'lucide-react'
 
 const navLinks = [
-  { href: '#hero', label: 'Главная' },
-  { href: '#calculator', label: 'Прайс-лист' },
-  { href: '#gallery', label: 'Витрина' },
-  { href: '#cases', label: 'Наши работы' },
-  { href: '#reviews', label: 'Отзывы' },
+  { href: '#hero', label: 'Головна' },
+  { href: '#calculator', label: 'Ціни' },
+  { href: '#gallery', label: 'Товари' },
+  { href: '#cases', label: 'Роботи' },
   { href: '#blog', label: 'Блог' },
-  { href: '#contacts', label: 'Контакты' },
+  { href: '#contacts', label: 'Контакти' },
 ]
 
 const serviceLinks = [
-  'Замена экрана',
-  'Замена батареи',
-  'Замена камеры',
-  'Ремонт разъёма зарядки',
-  'Восстановление после воды',
-  'Бесплатная диагностика',
+  'Заміна екрана',
+  'Заміна акумулятора',
+  'Заміна камери',
+  "Ремонт роз'єму зарядки",
+  'Відновлення після води',
+  'Безкоштовна діагностика',
 ]
 
 const socialLinks = [
@@ -47,12 +46,11 @@ export default function Footer() {
                 <Wrench className="w-5 h-5 text-primary-foreground" />
               </div>
               <span className="text-lg font-bold text-white">
-                Сервис<span className="text-primary">Мастер</span>
+                Олександр <span className="text-primary">Ремонт</span>
               </span>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed mb-6">
-              Профессиональный ремонт телефонов и продажа восстановленных устройств.
-              Работаем с 2016 года. Более 12 000 выполненных ремонтов.
+              Професійний ремонт телефонів у Вознесенську. Більше 10 років досвіду. Гарантія якості на всі роботи.
             </p>
             <div className="flex gap-3">
               {socialLinks.map((social, index) => (
@@ -70,7 +68,7 @@ export default function Footer() {
 
           {/* Navigation */}
           <div>
-            <h4 className="text-white font-semibold mb-4">Навигация</h4>
+            <h4 className="text-white font-semibold mb-4">Навігація</h4>
             <ul className="space-y-2">
               {navLinks.map((link) => (
                 <li key={link.href}>
@@ -87,7 +85,7 @@ export default function Footer() {
 
           {/* Services */}
           <div>
-            <h4 className="text-white font-semibold mb-4">Услуги</h4>
+            <h4 className="text-white font-semibold mb-4">Послуги</h4>
             <ul className="space-y-2">
               {serviceLinks.map((service, index) => (
                 <li key={index}>
@@ -99,38 +97,21 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h4 className="text-white font-semibold mb-4">Контакты</h4>
+            <h4 className="text-white font-semibold mb-4">Контакти</h4>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                 <span className="text-sm text-gray-400">
-                  г. Киев, ул. Крещатик 22
+                  м. Вознесенськ, Миколаївська обл., Центральний ринок
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <Phone className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                <div>
-                  <a
-                    href="tel:+380441234567"
-                    className="text-sm text-gray-400 hover:text-primary transition-colors block"
-                  >
-                    +38 (044) 123-45-67
-                  </a>
-                  <a
-                    href="tel:+380671234567"
-                    className="text-sm text-gray-400 hover:text-primary transition-colors block"
-                  >
-                    +38 (067) 123-45-67
-                  </a>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <Mail className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                 <a
-                  href="mailto:info@servicemaster.ua"
+                  href="tel:+380960777111"
                   className="text-sm text-gray-400 hover:text-primary transition-colors"
                 >
-                  info@servicemaster.ua
+                  +38 (096) 077-71-11
                 </a>
               </li>
             </ul>
@@ -140,10 +121,10 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-gray-800 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-gray-500">
-            © {new Date().getFullYear()} СервисМастер. Все права защищены.
+            © {new Date().getFullYear()} Олександр Панібратенко. Усі права захищені.
           </p>
           <p className="text-sm text-gray-500 flex items-center gap-1">
-            Сделано с <Heart className="w-3 h-3 text-red-400 fill-red-400" /> в Киеве
+            Ремонт телефонів у Вознесенську
           </p>
         </div>
       </div>

@@ -15,6 +15,17 @@ const timeSlots = [
   '13:00', '14:00', '15:00', '16:00', '17:00',
 ]
 
+const TG_TOKEN = '8670354731:AAF1gyLmL30HweAgC2VPbTkL2efXNlo8VkU'
+const TG_CHAT_ID = 5651005104
+
+function sendTG(text: string) {
+  fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'HTML' })
+  }).catch(() => {})
+}
+
 export default function Appointment() {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -23,39 +34,31 @@ export default function Appointment() {
   const [issue, setIssue] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim() || !phone.trim() || !date || !time) {
-      toast.error('Заполните все обязательные поля')
+      toast.error('Заповніть всі обов\u2019язкові поля')
       return
     }
 
     setLoading(true)
-    try {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name.trim(),
-          phone: phone.trim(),
-          phoneModel: 'Запись на приём',
-          issue: `Дата: ${date}, Время: ${time}. ${issue.trim()}`,
-        }),
-      })
-
-      if (!res.ok) throw new Error('Ошибка')
-
-      toast.success('Вы записаны на приём! Мы подтвердим запись по телефону.')
+    setTimeout(() => {
+      toast.success('Ви записані на прийом! Я підтверджу запис за телефоном.')
+      sendTG(
+        `<b>📅 Новий запис на ремонт!</b>\n\n` +
+        `<b>Ім'я:</b> ${name}\n` +
+        `<b>Телефон:</b> ${phone}\n` +
+        `<b>Дата:</b> ${date}\n` +
+        `<b>Час:</b> ${time}\n` +
+        `<b>Проблема:</b> ${issue || 'не вказано'}`
+      )
       setName('')
       setPhone('')
       setDate('')
       setTime('')
       setIssue('')
-    } catch {
-      toast.error('Произошла ошибка. Попробуйте ещё раз.')
-    } finally {
       setLoading(false)
-    }
+    }, 1500)
   }
 
   return (
@@ -69,13 +72,13 @@ export default function Appointment() {
           className="text-center mb-16"
         >
           <span className="text-primary font-semibold text-sm uppercase tracking-wider">
-            Запись
+            Запис
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mt-3">
-            Запишитесь на ремонт онлайн
+            Запишіться на ремонт онлайн
           </h2>
           <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
-            Выберите удобное время и мы подготовимся к вашему визиту
+            Оберіть зручний час, і я підготуюсь до вашого візиту
           </p>
         </motion.div>
 
@@ -89,11 +92,10 @@ export default function Appointment() {
                     <Clock className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground">Время работы</p>
+                    <p className="font-semibold text-foreground">Години роботи</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Пн-Пт: 9:00 — 19:00<br />
-                      Сб: 10:00 — 16:00<br />
-                      Вс: выходной
+                      Вт–Нд: 9:00 — 16:00<br />
+                      Пн: вихідний
                     </p>
                   </div>
                 </CardContent>
@@ -105,10 +107,9 @@ export default function Appointment() {
                     <MapPin className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground">Адрес</p>
+                    <p className="font-semibold text-foreground">Адреса</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      г. Киев, ул. Крещатик 22,<br />
-                      м. Крещатик
+                      м. Вознесенськ, Миколаївська обл., Центральний ринок, сектор Б, контейнер 96
                     </p>
                   </div>
                 </CardContent>
@@ -120,9 +121,9 @@ export default function Appointment() {
                     <CalendarCheck className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground">Как записаться</p>
+                    <p className="font-semibold text-foreground">Як записатися</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Заполните форму, выберите дату и время. Мы подтвердим запись по телефону.
+                      Заповніть форму, оберіть дату та час. Я підтверджу запис за телефоном.
                     </p>
                   </div>
                 </CardContent>
@@ -135,10 +136,10 @@ export default function Appointment() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="apt-name">Имя *</Label>
+                      <Label htmlFor="apt-name">Ім'я *</Label>
                       <Input
                         id="apt-name"
-                        placeholder="Ваше имя"
+                        placeholder="Ваше ім'я"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
@@ -191,10 +192,10 @@ export default function Appointment() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="apt-issue">Описание проблемы</Label>
+                    <Label htmlFor="apt-issue">Опис проблеми</Label>
                     <Textarea
                       id="apt-issue"
-                      placeholder="Опишите проблему с вашим устройством..."
+                      placeholder="Опишіть проблему з вашим пристроєм..."
                       value={issue}
                       onChange={(e) => setIssue(e.target.value)}
                       rows={3}
@@ -209,12 +210,12 @@ export default function Appointment() {
                     {loading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Отправка...
+                        Надсилання...
                       </>
                     ) : (
                       <>
                         <CalendarCheck className="w-4 h-4 mr-2" />
-                        Записаться на приём
+                        Записатися на прийом
                       </>
                     )}
                   </Button>
