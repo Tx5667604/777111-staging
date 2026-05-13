@@ -122,6 +122,7 @@ function CalculatorTab() {
   const [search, setSearch] = useState("")
   const [saving, setSaving] = useState(false)
   const [statusMsg, setStatusMsg] = useState("")
+  const [modelSearch, setModelSearch] = useState("")
 
   useEffect(() => {
     // Load from static data and merge with Firestore
@@ -226,9 +227,24 @@ function CalculatorTab() {
     await saveBrand(brandId, updatedModels)
   }
 
-  const filteredBrands = brands.filter((b) =>
-    b.name.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredBrands = brands
+    .filter((b) => {
+      if (b.name.toLowerCase().includes(search.toLowerCase())) return true
+      if (search && b.models?.some((m: any) =>
+        (m.modelName || "").toLowerCase().includes(search.toLowerCase()) ||
+        (m.modelCode || "").toLowerCase().includes(search.toLowerCase())
+      )) return true
+      return !search
+    })
+    .sort((a, b) => a.name.localeCompare(b.name))
+
+  const getFilteredModels = (models: any[]) => {
+    if (!modelSearch) return models
+    return models.filter((m) =>
+      (m.modelCode || "").toLowerCase().includes(modelSearch.toLowerCase()) ||
+      (m.modelName || "").toLowerCase().includes(modelSearch.toLowerCase())
+    )
+  }
 
   return (
     <div>
@@ -262,6 +278,15 @@ function CalculatorTab() {
           {expandedBrand === brand.id && (
             <CardContent className="pt-0 pb-4 px-4">
               <div className="flex items-center gap-2 mb-3">
+                <div className="relative flex-1 max-w-xs">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                  <Input
+                    placeholder="Пошук моделі..."
+                    value={modelSearch}
+                    onChange={(e) => setModelSearch(e.target.value)}
+                    className="pl-8 h-8 text-xs"
+                  />
+                </div>
                 <Button size="sm" variant="outline" onClick={() => addModel(brand.id)}>
                   <Plus className="w-3.5 h-3.5 mr-1" /> Модель
                 </Button>
@@ -281,7 +306,7 @@ function CalculatorTab() {
                     </tr>
                   </thead>
                   <tbody>
-                    {brand.models.map((model: any, idx: number) => {
+                    {getFilteredModels(brand.models).map((model: any, idx: number) => {
                       const isEditing = editingModel === `${brand.id}-${idx}`
                       const p = model.parts || {}
                       return (

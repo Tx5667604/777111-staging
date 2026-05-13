@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
 import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton'
 import { UserMenu } from '@/components/auth/UserMenu'
+import { CartDrawer } from '@/components/cart/CartDrawer'
 
 const navLinks = [
   { href: '#hero', label: 'Головна' },
@@ -126,6 +127,9 @@ export default function Header() {
             <div className="hidden sm:block">
               <UserMenu />
             </div>
+
+            {/* Cart */}
+            <CartDrawer />
 
             {/* Mobile Menu */}
             <Sheet open={open} onOpenChange={setOpen}>

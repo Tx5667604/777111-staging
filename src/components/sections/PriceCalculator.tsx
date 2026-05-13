@@ -2,13 +2,16 @@
 
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronRight, ChevronLeft, Check } from 'lucide-react'
+import { Search, ShoppingCart, ChevronRight, ChevronLeft, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
+import { toast } from 'sonner'
 import OrderFormDialog from './OrderFormDialog'
 import { brandPartsData } from '@/app/phone-parts-data'
 import { PART_CATEGORIES } from '@/app/types'
 import type { PartVariant, BrandParts, PartCategory } from '@/app/types'
+import { useCart } from '@/lib/cart-context'
 
 const brands: { id: string; name: string; logo: string }[] = brandPartsData.map((b) => ({
   id: b.name,
@@ -23,6 +26,8 @@ export default function PriceCalculator() {
   const [selectedVariant, setSelectedVariant] = useState<PartVariant | null>(null)
   const [step, setStep] = useState(1)
   const [orderDialogOpen, setOrderDialogOpen] = useState(false)
+  const [modelSearch, setModelSearch] = useState("")
+  const { addItem } = useCart()
 
   const brandData: BrandParts | undefined = useMemo(
     () => brandPartsData.find((b) => b.name === selectedBrand),
@@ -212,8 +217,21 @@ export default function PriceCalculator() {
                   </h3>
                   <div className="w-20" />
                 </div>
+                <div className="relative mb-3">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Пошук моделі..."
+                    value={modelSearch}
+                    onChange={(e) => setModelSearch(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
                 <div className="max-h-[400px] overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2 pr-2">
-                  {models.map((m) => (
+                  {models.filter(m => 
+                    !modelSearch || 
+                    m.modelName.toLowerCase().includes(modelSearch.toLowerCase()) ||
+                    m.modelCode.toLowerCase().includes(modelSearch.toLowerCase())
+                  ).map((m) => (
                     <motion.button
                       key={m.modelCode}
                       whileHover={{ scale: 1.02 }}
@@ -384,14 +402,33 @@ export default function PriceCalculator() {
                           <span>•</span>
                           <span>Робота: {selectedVariant.laborCost.toLocaleString('uk-UA')} ₴</span>
                         </div>
-                        <Button
-                          onClick={() => setOrderDialogOpen(true)}
-                          size="lg"
-                          className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
-                        >
-                          Замовити ремонт
-                          <ChevronRight className="w-4 h-4" />
-                        </Button>
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center mt-4">
+                          <Button
+                            onClick={() => {
+                              if (selectedBrand && selectedModelData && selectedCategory && selectedVariant) {
+                                addItem({
+                                  brand: selectedBrand,
+                                  modelCode: selectedModelData.modelCode,
+                                  modelName: selectedModelData.modelName,
+                                  partCategory: selectedCategory,
+                                  partName: PART_CATEGORIES.find(c => c.id === selectedCategory)?.name || selectedCategory,
+                                  quality: selectedVariant.quality,
+                                  label: selectedVariant.label,
+                                  partCost: selectedVariant.partCost,
+                                  laborCost: selectedVariant.laborCost,
+                                  total: totalPrice!,
+                                })
+                                handleReset()
+                                toast.success('Додано в кошик!', { duration: 2000 })
+                              }
+                            }}
+                            size="lg"
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 flex-1"
+                          >
+                            <ShoppingCart className="w-4 h-4" />
+                            Додати в кошик
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   </motion.div>
