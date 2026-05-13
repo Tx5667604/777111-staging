@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { phones as phonesData } from '@/app/data'
+import { initFirebase } from '@/lib/firebase'
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Smartphone, Info } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
@@ -42,9 +44,22 @@ const brandLogos: Record<string, string> = {
 }
 
 export default function PhoneGallery() {
-  const [phones] = useState(phonesData)
+  const [phones, setPhones] = useState(phonesData)
   const [filter, setFilter] = useState('all')
   const [selectedPhone, setSelectedPhone] = useState<Phone | null>(null)
+
+  // Load phones from Firestore, fallback to static data
+  useEffect(() => {
+    try {
+      const { db } = initFirebase()
+      const q = query(collection(db, "gallery_phones"), orderBy("createdAt", "desc"))
+      const unsub = onSnapshot(q, (snap) => {
+        const fbPhones = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+        if (fbPhones.length > 0) setPhones(fbPhones as Phone[])
+      })
+      return unsub
+    } catch {}
+  }, [])
 
   const filteredPhones = filter === 'all'
     ? phones

@@ -129,7 +129,7 @@ export default function Hero() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-sm font-medium text-gray-800 pr-1">Гарантія 12 міс</span>
+                <span className="text-sm font-medium text-gray-800 pr-1">Висока якість роботи</span>
               </motion.div>
 
               <motion.div

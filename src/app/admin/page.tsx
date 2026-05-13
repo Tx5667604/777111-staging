@@ -29,6 +29,7 @@ import {
   Users,
   Calculator,
   ShoppingCart,
+  Smartphone,
   Search,
   Trash2,
   Plus,
@@ -533,6 +534,135 @@ function OrdersTab() {
   )
 }
 
+// ========== Phones Tab (gallery) ==========
+function PhonesTab() {
+  const [phones, setPhones] = useState<any[]>([])
+  const [search, setSearch] = useState("")
+  const [form, setForm] = useState({ brand: "", model: "", storage: "", color: "", condition: "", price: 0, description: "", available: true })
+  const [editing, setEditing] = useState<string | null>(null)
+  const [showForm, setShowForm] = useState(false)
+
+  useEffect(() => {
+    const { db } = initFirebase()
+    const q = query(collection(db, "gallery_phones"), orderBy("createdAt", "desc"))
+    const unsub = onSnapshot(q, (snap) => setPhones(snap.docs.map((d) => ({ id: d.id, ...d.data() }))))
+    return unsub
+  }, [])
+
+  const resetForm = () => setForm({ brand: "", model: "", storage: "", color: "", condition: "", price: 0, description: "", available: true })
+
+  const handleSave = async () => {
+    if (!form.brand.trim() || !form.model.trim()) return
+    const { db } = initFirebase()
+    const data = { ...form, createdAt: Timestamp.now() }
+    if (editing) {
+      await updateDoc(doc(db, "gallery_phones", editing), data)
+    } else {
+      await addDoc(collection(db, "gallery_phones"), data)
+    }
+    resetForm(); setShowForm(false); setEditing(null)
+  }
+
+  const handleEdit = (p: any) => {
+    setForm({ brand: p.brand, model: p.model, storage: p.storage || "", color: p.color || "", condition: p.condition || "", price: p.price || 0, description: p.description || "", available: p.available !== false })
+    setEditing(p.id); setShowForm(true)
+  }
+
+  const handleDelete = async (id: string) => {
+    const { db } = initFirebase()
+    await deleteDoc(doc(db, "gallery_phones", id))
+  }
+
+  const seedFromStatic = async () => {
+    const { db } = initFirebase()
+    const { phones: staticPhones } = await import('@/app/data')
+    for (const p of staticPhones) {
+      await addDoc(collection(db, "gallery_phones"), { ...p, createdAt: Timestamp.now() })
+    }
+  }
+
+  const filtered = phones.filter((p) =>
+    `${p.brand} ${p.model} ${p.storage || ""}`.toLowerCase().includes(search.toLowerCase())
+  )
+
+  return (
+    <div>
+      <div className="flex items-center gap-4 mb-4 flex-wrap">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input placeholder="Пошук телефону..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+        </div>
+        <p className="text-sm text-muted-foreground">{filtered.length} телефонів</p>
+        <Button size="sm" variant="outline" onClick={seedFromStatic}>Завантажити з даних</Button>
+        <Button size="sm" onClick={() => { resetForm(); setEditing(null); setShowForm(true) }}><Plus className="w-4 h-4 mr-1" />Додати</Button>
+      </div>
+
+      {showForm && (
+        <Card className="mb-4 border-primary/30">
+          <CardContent className="p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+              <Input placeholder="Бренд *" value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} />
+              <Input placeholder="Модель *" value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} />
+              <Input placeholder="Пам'ять" value={form.storage} onChange={(e) => setForm({ ...form, storage: e.target.value })} />
+              <Input placeholder="Колір" value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} />
+              <Input placeholder="Стан" value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value })} />
+              <Input type="number" placeholder="Ціна (грн)" value={form.price || ""} onChange={(e) => setForm({ ...form, price: parseInt(e.target.value) || 0 })} />
+              <Input placeholder="Опис" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="sm:col-span-3" />
+            </div>
+            <div className="flex items-center gap-4 mb-3">
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={form.available} onChange={(e) => setForm({ ...form, available: e.target.checked })} />
+                В наявності
+              </label>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" size="sm" onClick={() => { setShowForm(false); setEditing(null) }}><X className="w-4 h-4 mr-1" />Скасувати</Button>
+              <Button size="sm" onClick={handleSave}><Check className="w-4 h-4 mr-1" />{editing ? "Зберегти" : "Додати"}</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b text-left text-muted-foreground">
+              <th className="pb-2 font-medium">Модель</th>
+              <th className="pb-2 font-medium">Пам'ять</th>
+              <th className="pb-2 font-medium">Стан</th>
+              <th className="pb-2 font-medium">Ціна</th>
+              <th className="pb-2 font-medium">Статус</th>
+              <th className="pb-2 font-medium w-16"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 && <tr><td colSpan={6} className="text-center text-muted-foreground py-8">Телефонів не знайдено</td></tr>}
+            {filtered.map((p) => (
+              <tr key={p.id} className="border-b hover:bg-muted/30">
+                <td className="py-2.5 font-medium">{p.brand} {p.model}</td>
+                <td className="py-2.5 text-muted-foreground">{p.storage || "—"}</td>
+                <td className="py-2.5 text-muted-foreground">{p.condition || "—"}</td>
+                <td className="py-2.5 font-medium">{p.price} ₴</td>
+                <td className="py-2.5">
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${p.available !== false ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                    {p.available !== false ? "В наявності" : "Немає"}
+                  </span>
+                </td>
+                <td className="py-2.5">
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => handleEdit(p)} className="p-1 hover:bg-accent rounded"><Edit3 className="w-3.5 h-3.5 text-muted-foreground" /></button>
+                    <button onClick={() => handleDelete(p.id)} className="p-1 hover:bg-red-50 rounded"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
 // ========== Main Admin Page ==========
 export default function AdminPage() {
   const { user, loading } = useAuth()
@@ -580,10 +710,12 @@ export default function AdminPage() {
             <TabsTrigger value="clients" className="flex items-center gap-2"><Users className="w-4 h-4" />Клієнти</TabsTrigger>
             <TabsTrigger value="calculator" className="flex items-center gap-2"><Calculator className="w-4 h-4" />Калькулятор</TabsTrigger>
             <TabsTrigger value="orders" className="flex items-center gap-2"><ShoppingCart className="w-4 h-4" />Замовлення</TabsTrigger>
+            <TabsTrigger value="phones" className="flex items-center gap-2"><Smartphone className="w-4 h-4" />Телефони</TabsTrigger>
           </TabsList>
           <TabsContent value="clients"><UsersTab /></TabsContent>
           <TabsContent value="calculator"><CalculatorTab /></TabsContent>
           <TabsContent value="orders"><OrdersTab /></TabsContent>
+          <TabsContent value="phones"><PhonesTab /></TabsContent>
         </Tabs>
       </main>
     </div>
