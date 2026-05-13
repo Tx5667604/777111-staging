@@ -12,3 +12,7 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /_next/
+
+Sitemap: https://777111.com.ua/sitemap.xml
+Host: https://777111.com.ua

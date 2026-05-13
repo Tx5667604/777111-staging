@@ -6,11 +6,23 @@ with open(filepath, 'r') as f:
     data = f.read()
 
 codes_to_remove = [
-    # Lenovo duplicates
-    "Tab P11 2nd Gen TB350FU",
-    "Tab P12 TB370FU",
-    # Motorola error
-    "Корпу",
+    # Xiaomi color variants
+    "Poco M4 Pro 5G чёрная",
+    "Redmi Note 8 Pro сине-фіолетова",
+    "Redmi Note 11 Pro 5G Atlantic Blue",
+    "Redmi Note 11 Pro 5G Graphite Gray",
+    "Redmi Note 11 Pro 5G Polar White",
+    "Redmi Note 15 Pro 5G Titanium",
+    # Oppo year/camera variants
+    "A52 12MP",
+    "A15 2020",
+    "A18 2023",
+    "A31 2020",
+    "A5 2020",
+    "A3 2018",
+    # Huawei camera variants
+    "P30 Lite 24MP Black",
+    "P30 Lite 48MP",
 ]
 
 for code in codes_to_remove:
