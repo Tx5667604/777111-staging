@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Phone, Menu, X, Wrench } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
+import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton'
 
 const navLinks = [
   { href: '#hero', label: 'Головна' },
@@ -120,6 +121,11 @@ export default function Header() {
               </a>
             </Button>
 
+            {/* Google Login */}
+            <div className="hidden sm:block">
+              <GoogleLoginButton variant="icon" />
+            </div>
+
             {/* Mobile Menu */}
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
@@ -155,6 +161,9 @@ export default function Header() {
                     </motion.button>
                   ))}
                 </nav>
+                <div className="mt-4 px-4">
+                  <GoogleLoginButton variant="full" />
+                </div>
                 <div className="mt-8 pt-6 border-t space-y-2">
                   <Button
                     asChild
