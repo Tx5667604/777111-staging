@@ -1,0 +1,271 @@
+// src/app/account/page.tsx
+"use client"
+
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
+import Link from "next/link"
+import { useAuth } from "@/lib/auth-context"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  User,
+  Mail,
+  Phone,
+  ShoppingBag,
+  Wallet,
+  Package,
+  LogOut,
+  ArrowLeft,
+  History,
+  Plus,
+  ClipboardList,
+} from "lucide-react"
+
+// Вспомогательные секции (заглушки для будущего функционала)
+function SectionCard({
+  icon: Icon,
+  title,
+  description,
+  children,
+}: {
+  icon: React.ElementType
+  title: string
+  description?: string
+  children?: React.ReactNode
+}) {
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Icon className="w-5 h-5 text-primary" />
+          {title}
+        </CardTitle>
+        {description && (
+          <p className="text-sm text-muted-foreground mt-1">{description}</p>
+        )}
+      </CardHeader>
+      {children && <CardContent>{children}</CardContent>}
+    </Card>
+  )
+}
+
+export default function AccountPage() {
+  const { user, profile, loading, logout } = useAuth()
+  const router = useRouter()
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  // Если не авторизован и загрузка завершена — показать приглашение
+  if (!loading && !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted/30">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+            <User className="w-10 h-10 text-primary" />
+          </div>
+          <h1 className="text-2xl font-bold mb-3">Увійдіть в акаунт</h1>
+          <p className="text-muted-foreground mb-6">
+            Щоб переглянути особистий кабінет, увійдіть через Google або зареєструйтеся
+          </p>
+          <Button asChild>
+            <Link href="/">На головну</Link>
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted/30">
+        <div className="w-12 h-12 rounded-full bg-muted animate-pulse" />
+      </div>
+    )
+  }
+
+  const handleLogout = async () => {
+    setLoggingOut(true)
+    await logout()
+    router.push("/")
+  }
+
+  return (
+    <div className="min-h-screen bg-muted/30">
+      {/* Header */}
+      <header className="bg-background border-b sticky top-0 z-50">
+        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            На головну
+          </Link>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground hidden sm:inline">
+              {profile?.email || user?.email}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="text-red-500 hover:text-red-600 hover:bg-red-50"
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              Вийти
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-5xl mx-auto px-4 py-8">
+        {/* Profile card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <Card className="overflow-hidden">
+            <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent h-24" />
+            <CardContent className="p-6 -mt-12">
+              <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
+                <div className="w-20 h-20 rounded-full border-4 border-background shadow-lg overflow-hidden bg-background">
+                  {profile?.photoURL ? (
+                    <img src={profile.photoURL} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-primary/10 flex items-center justify-center">
+                      <User className="w-8 h-8 text-primary" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0 pt-2 sm:pt-0">
+                  <h1 className="text-2xl font-bold truncate">
+                    {profile?.name || "Користувач"}
+                  </h1>
+                  <p className="text-muted-foreground text-sm">
+                    {profile?.email || user?.email}
+                  </p>
+                  {profile?.phone && (
+                    <p className="text-muted-foreground text-sm flex items-center gap-1 mt-1">
+                      <Phone className="w-3.5 h-3.5" />
+                      {profile.phone}
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full whitespace-nowrap">
+                  <div className="w-2 h-2 rounded-full bg-green-500" />
+                  Онлайн
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Dashboard sections */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Order History */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <SectionCard icon={ShoppingBag} title="Історія замовлень">
+              <div className="space-y-3">
+                <div className="text-center py-6 text-muted-foreground">
+                  <History className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                  <p className="text-sm">У вас ще немає замовлень</p>
+                  <p className="text-xs mt-1">Тут будуть ваші замовлення на ремонт</p>
+                </div>
+                <Button variant="outline" className="w-full" disabled>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Додати замовлення
+                </Button>
+              </div>
+            </SectionCard>
+          </motion.div>
+
+          {/* Personal Balance */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+          >
+            <SectionCard icon={Wallet} title="Особистий баланс">
+              <div className="text-center py-6">
+                <p className="text-4xl font-bold text-primary mb-1">0 ₴</p>
+                <p className="text-xs text-muted-foreground">Поточний баланс</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mt-4">
+                <Button variant="outline" size="sm" disabled>
+                  Поповнити
+                </Button>
+                <Button variant="outline" size="sm" disabled>
+                  Історія
+                </Button>
+              </div>
+            </SectionCard>
+          </motion.div>
+
+          {/* Inventory / Warehouse */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <SectionCard
+              icon={Package}
+              title="Облік товару"
+              description="Управління запчастинами та складом"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <ClipboardList className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm">Всього позицій</span>
+                  </div>
+                  <span className="text-sm font-bold">0</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" size="sm" disabled>
+                    <Plus className="w-4 h-4 mr-1" />
+                    Додати
+                  </Button>
+                  <Button variant="outline" size="sm" disabled>
+                    <ClipboardList className="w-4 h-4 mr-1" />
+                    Звіт
+                  </Button>
+                </div>
+              </div>
+            </SectionCard>
+          </motion.div>
+
+          {/* Quick Actions */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+          >
+            <SectionCard
+              icon={User}
+              title="Мої дані"
+              description="Інформація для швидкого зв'язку"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                  <Mail className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm">{profile?.email || user?.email}</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                  <Phone className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm">{profile?.phone || "Не вказано"}</span>
+                </div>
+              </div>
+            </SectionCard>
+          </motion.div>
+        </div>
+      </main>
+    </div>
+  )
+}
