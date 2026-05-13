@@ -6,7 +6,6 @@ import Advantages from '@/components/sections/Advantages'
 import PriceCalculator from '@/components/sections/PriceCalculator'
 import PhoneGallery from '@/components/sections/PhoneGallery'
 
-import Blog from '@/components/sections/Blog'
 import Appointment from '@/components/sections/Appointment'
 import Contacts from '@/components/sections/Contacts'
 import Footer from '@/components/sections/Footer'
@@ -20,7 +19,6 @@ export default function Home() {
         <Advantages />
         <PriceCalculator />
         <PhoneGallery />
-        <Blog />
         <Appointment />
         <Contacts />
       </main>

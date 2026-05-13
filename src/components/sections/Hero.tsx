@@ -71,7 +71,7 @@ export default function Hero() {
                 size="lg"
                 className="bg-white text-orange-600 hover:bg-white/90 font-semibold text-base gap-2 h-12 px-6"
               >
-                Розрахувати вартість
+                Розрахувати вартість ремонту
                 <ArrowRight className="w-4 h-4" />
               </Button>
               <Button
@@ -80,7 +80,7 @@ export default function Hero() {
                 variant="outline"
                 className="border-white/40 text-white hover:bg-white/10 font-semibold text-base h-12 px-6 bg-transparent"
               >
-                Обрати телефон
+                Обрати відновлені телефони
               </Button>
             </motion.div>
 
