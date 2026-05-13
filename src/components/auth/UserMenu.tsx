@@ -5,7 +5,9 @@ import React, { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { AuthModal } from "./AuthModal"
-import { User, LogOut, ChevronDown, Mail, LayoutDashboard } from "lucide-react"
+import { User, LogOut, ChevronDown, Mail, LayoutDashboard, Shield } from "lucide-react"
+
+const ADMIN_EMAIL = "fit5667604@gmail.com"
 
 export function UserMenu() {
   const { user, profile, loading, loginWithGoogle, logout } = useAuth()
@@ -66,6 +68,15 @@ export function UserMenu() {
               <LayoutDashboard className="w-4 h-4" />
               Особистий кабінет
             </button>
+            {user?.email === ADMIN_EMAIL && (
+              <button
+                onClick={() => { router.push("/admin"); setMenuOpen(false) }}
+                className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+              >
+                <Shield className="w-4 h-4" />
+                Адмін-панель
+              </button>
+            )}
             <button
               onClick={() => { logout(); setMenuOpen(false) }}
               className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors"
