@@ -5,6 +5,8 @@ import React, { createContext, useContext, useEffect, useState, useCallback, Rea
 import {
   onAuthStateChanged,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
@@ -92,6 +94,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const { auth } = initFirebase();
+
+    // Handle redirect result (user coming back from Google login)
+    const handleRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          await saveProfile(result.user);
+        }
+      } catch (err: any) {
+        if (err.code !== "auth/popup-closed-by-user") {
+          console.error("Redirect result error:", err);
+        }
+      }
+    };
+    handleRedirect();
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
@@ -107,12 +125,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginWithGoogle = async () => {
     try {
       const { auth, googleProvider } = initFirebase();
-      const result = await signInWithPopup(auth, googleProvider);
-      await saveProfile(result.user);
+      await signInWithRedirect(auth, googleProvider);
     } catch (err: any) {
-      if (err.code !== "auth/popup-closed-by-user") {
-        console.error("Login error:", err);
-      }
+      console.error("Login error:", err);
     }
   };
 

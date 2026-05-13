@@ -9,10 +9,8 @@ import { User, LogOut, ChevronDown, Mail, LayoutDashboard } from "lucide-react"
 
 export function UserMenu() {
   const { user, profile, loading, loginWithGoogle, logout } = useAuth()
-  const router = useRouter()
   const [modalOpen, setModalOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [loggingIn, setLoggingIn] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   // Close dropdown on outside click
@@ -85,16 +83,10 @@ export function UserMenu() {
   return (
     <div className="relative" ref={menuRef}>
       <div className="flex items-center gap-0">
-        {/* Main button: direct Google login */}
+        {/* Main button: direct Google login (redirect) */}
         <button
-          onClick={async () => {
-            setLoggingIn(true)
-            await loginWithGoogle()
-            setLoggingIn(false)
-            router.push("/account")
-          }}
-          disabled={loggingIn}
-          className="inline-flex items-center justify-center gap-1.5 rounded-l-lg border border-r-0 bg-background shadow-xs h-9 px-3 py-2 text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground whitespace-nowrap disabled:opacity-50"
+          onClick={() => loginWithGoogle()}
+          className="inline-flex items-center justify-center gap-1.5 rounded-l-lg border border-r-0 bg-background shadow-xs h-9 px-3 py-2 text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground whitespace-nowrap"
         >
           <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" aria-hidden="true">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
