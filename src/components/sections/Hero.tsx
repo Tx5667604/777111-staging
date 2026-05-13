@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowRight, Smartphone, ChevronDown, ShoppingCart } from 'lucide-react'
+import { ArrowRight, Smartphone, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default function Hero() {
@@ -81,15 +81,6 @@ export default function Hero() {
                 className="border-white/40 text-white hover:bg-white/10 font-semibold text-base h-12 px-6 bg-transparent"
               >
                 Обрати телефон
-              </Button>
-              <Button
-                onClick={() => handleScrollTo('#calculator')}
-                size="lg"
-                variant="outline"
-                className="border-white/40 text-white hover:bg-white/10 font-semibold text-base h-12 px-6 bg-transparent"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                Замовити запчастини
               </Button>
             </motion.div>
 
