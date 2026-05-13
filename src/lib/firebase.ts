@@ -1,7 +1,6 @@
 // src/lib/firebase.ts
-// ⚠️ Заміни значення на свої з Firebase Console
 import { initializeApp, FirebaseApp } from "firebase/app";
-import { getAuth, Auth, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, Auth } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
 
 export interface FirebaseConfig {
@@ -13,7 +12,6 @@ export interface FirebaseConfig {
   appId: string;
 }
 
-// Заповнити після створення Firebase проекту
 const firebaseConfig: FirebaseConfig = {
   apiKey: "AIzaSyCGDrySQ6zeB-EGS-eq-5zphz73evMQc9A",
   authDomain: "phone-repair-46298.firebaseapp.com",
@@ -26,19 +24,12 @@ const firebaseConfig: FirebaseConfig = {
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let db: Firestore | null = null;
-let googleProvider: GoogleAuthProvider | null = null;
 
-export function initFirebase(): { auth: Auth; db: Firestore; googleProvider: GoogleAuthProvider } {
+export function initFirebase(): { auth: Auth; db: Firestore } {
   if (!app) {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
-    googleProvider = new GoogleAuthProvider();
-    googleProvider.setCustomParameters({ prompt: "select_account" });
   }
-  return { auth: auth!, db: db!, googleProvider: googleProvider! };
-}
-
-export function getFirebaseConfig(): FirebaseConfig {
-  return firebaseConfig;
+  return { auth: auth!, db: db! };
 }

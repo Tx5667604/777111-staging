@@ -5,8 +5,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback, Rea
 import {
   onAuthStateChanged,
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
+  GoogleAuthProvider,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
@@ -51,7 +50,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Завантажити профіль з Firestore
   const loadProfile = useCallback(async (uid: string) => {
     try {
       const { db } = initFirebase();
@@ -65,7 +63,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Зберегти/оновити профіль при вході
   const saveProfile = useCallback(async (firebaseUser: User) => {
     try {
       const { db } = initFirebase();
@@ -94,22 +91,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const { auth } = initFirebase();
-
-    // Handle redirect result (user coming back from Google login)
-    const handleRedirect = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-          await saveProfile(result.user);
-        }
-      } catch (err: any) {
-        if (err.code !== "auth/popup-closed-by-user") {
-          console.error("Redirect result error:", err);
-        }
-      }
-    };
-    handleRedirect();
-
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
@@ -124,10 +105,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginWithGoogle = async () => {
     try {
-      const { auth, googleProvider } = initFirebase();
-      await signInWithRedirect(auth, googleProvider);
+      const { auth } = initFirebase();
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      const result = await signInWithPopup(auth, provider);
+      await saveProfile(result.user);
+      window.location.href = "/account";
     } catch (err: any) {
-      console.error("Login error:", err);
+      if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request") {
+        console.error("Google login error:", err);
+        throw err;
+      }
     }
   };
 
@@ -147,7 +135,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { auth } = initFirebase();
       const result = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(result.user, { displayName: name });
-      await saveProfile({ ...result.user, displayName: name });
+      const updatedUser = { ...result.user, displayName: name } as User;
+      await saveProfile(updatedUser);
       return "";
     } catch (err: any) {
       return getFirebaseErrorMessage(err.code);
