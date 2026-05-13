@@ -97,6 +97,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCheckingOut(true)
     try {
       const orderData = {
+        type: "cart",
+        status: "accepted",
+        clientName: name,
+        clientPhone: phone,
+        clientEmail: email || "",
         name,
         phone,
         email: email || "",

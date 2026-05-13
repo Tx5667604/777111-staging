@@ -2,7 +2,6 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { AuthModal } from "./AuthModal"
 import { User, LogOut, ChevronDown, Mail, LayoutDashboard, Shield } from "lucide-react"
@@ -62,7 +61,7 @@ export function UserMenu() {
               <p className="text-xs text-muted-foreground truncate">{profile?.email || user.email}</p>
             </div>
             <button
-              onClick={() => { router.push("/account"); setMenuOpen(false) }}
+              onClick={() => { window.location.href = `${window.location.pathname.replace(/\/+$/, '')}/account`; setMenuOpen(false) }}
               className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm hover:bg-accent rounded-lg transition-colors"
             >
               <LayoutDashboard className="w-4 h-4" />
@@ -70,7 +69,7 @@ export function UserMenu() {
             </button>
             {user?.email === ADMIN_EMAIL && (
               <button
-                onClick={() => { router.push("/admin"); setMenuOpen(false) }}
+                onClick={() => { window.location.href = `${window.location.pathname.replace(/\/+$/, '')}/admin`; setMenuOpen(false) }}
                 className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
               >
                 <Shield className="w-4 h-4" />

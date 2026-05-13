@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
+import { initFirebase } from "@/lib/firebase"
+import { collection, query, where, orderBy, onSnapshot, Timestamp } from "firebase/firestore"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -20,6 +22,7 @@ import {
   History,
   Plus,
   ClipboardList,
+  Smartphone,
 } from "lucide-react"
 
 // Вспомогательные секции (заглушки для будущего функционала)
@@ -47,6 +50,80 @@ function SectionCard({
       </CardHeader>
       {children && <CardContent>{children}</CardContent>}
     </Card>
+  )
+}
+
+// ========== Orders List Component ==========
+const STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  accepted: { label: "Прийнято", color: "bg-blue-100 text-blue-700" },
+  in_progress: { label: "В роботі", color: "bg-yellow-100 text-yellow-700" },
+  ready: { label: "Готово", color: "bg-green-100 text-green-700" },
+}
+
+function OrdersList({ userId }: { userId?: string | null }) {
+  const [orders, setOrders] = useState<any[]>([])
+
+  useEffect(() => {
+    if (!userId) return
+    const { db } = initFirebase()
+    const q = query(
+      collection(db, "orders"),
+      where("userId", "==", userId),
+      orderBy("createdAt", "desc")
+    )
+    const unsub = onSnapshot(q, (snap) => {
+      setOrders(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+    })
+    return unsub
+  }, [userId])
+
+  if (orders.length === 0) {
+    return (
+      <div className="text-center py-6 text-muted-foreground">
+        <History className="w-8 h-8 mx-auto mb-2 opacity-40" />
+        <p className="text-sm">У вас ще немає замовлень</p>
+        <p className="text-xs mt-1">Після оформлення ремонту статуси з'являться тут</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-2">
+      {orders.map((order) => {
+        const st = STATUS_LABELS[order.status] || STATUS_LABELS.accepted
+        return (
+          <div key={order.id} className="p-3 bg-muted/30 rounded-xl border">
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <Smartphone className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                  <span className="text-sm font-medium truncate">
+                    {order.deviceModel || "Ремонт телефону"}
+                  </span>
+                </div>
+                {order.deviceIssue && (
+                  <p className="text-xs text-muted-foreground">{order.deviceIssue}</p>
+                )}
+                {order.items && order.items.length > 0 && (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {order.items.length} позицій
+                  </p>
+                )}
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-sm font-bold text-primary">{order.price || order.total || 0} ₴</p>
+                <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${st.color}`}>
+                  {st.label}
+                </span>
+              </div>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              {order.createdAt ? new Date(order.createdAt.seconds * 1000 || order.createdAt).toLocaleDateString("uk-UA", { day: "numeric", month: "long" }) : ""}
+            </p>
+          </div>
+        )
+      })}
+    </div>
   )
 }
 
@@ -171,18 +248,8 @@ export default function AccountPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <SectionCard icon={ShoppingBag} title="Історія замовлень">
-              <div className="space-y-3">
-                <div className="text-center py-6 text-muted-foreground">
-                  <History className="w-8 h-8 mx-auto mb-2 opacity-40" />
-                  <p className="text-sm">У вас ще немає замовлень</p>
-                  <p className="text-xs mt-1">Тут будуть ваші замовлення на ремонт</p>
-                </div>
-                <Button variant="outline" className="w-full" disabled>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Додати замовлення
-                </Button>
-              </div>
+            <SectionCard icon={ShoppingBag} title="Мої замовлення">
+              <OrdersList userId={user?.uid} />
             </SectionCard>
           </motion.div>
 

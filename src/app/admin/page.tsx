@@ -363,9 +363,19 @@ function CalculatorTab() {
 }
 
 // ========== Orders Tab ==========
+const STATUS_CONFIG: Record<string, { label: string; color: string; next: string | null }> = {
+  accepted: { label: "Прийнято", color: "bg-blue-100 text-blue-700", next: "in_progress" },
+  in_progress: { label: "В роботі", color: "bg-yellow-100 text-yellow-700", next: "ready" },
+  ready: { label: "Готово", color: "bg-green-100 text-green-700", next: null },
+}
+
 function OrdersTab() {
   const [orders, setOrders] = useState<any[]>([])
   const [search, setSearch] = useState("")
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [orderForm, setOrderForm] = useState({
+    clientName: "", clientPhone: "", clientEmail: "", deviceModel: "", deviceIssue: "", price: 0,
+  })
 
   useEffect(() => {
     const { db } = initFirebase()
@@ -376,53 +386,149 @@ function OrdersTab() {
     return unsub
   }, [])
 
+  const changeStatus = async (orderId: string, currentStatus: string) => {
+    const config = STATUS_CONFIG[currentStatus]
+    if (!config?.next) return
+    const { db } = initFirebase()
+    await updateDoc(doc(db, "orders", orderId), {
+      status: config.next,
+      updatedAt: Timestamp.now(),
+    })
+    // Если статус "Готово" — уведомить админа в Telegram
+    if (config.next === "ready") {
+      const order = orders.find((o) => o.id === orderId)
+      if (order) {
+        sendTG(
+          `<b>✅ Замовлення готове!</b>\n\n` +
+          `<b>Клієнт:</b> ${order.clientName || order.name || "—"}\n` +
+          `<b>Телефон:</b> ${order.clientPhone || order.phone || "—"}\n` +
+          `<b>Email:</b> ${order.clientEmail || order.email || "—"}\n` +
+          `<b>Пристрій:</b> ${order.deviceModel || "—"}\n` +
+          `<b>Проблема:</b> ${order.deviceIssue || "—"}\n` +
+          `<b>Ціна:</b> ${order.price || order.total || 0}₴\n\n` +
+          `Зателефонуйте клієнту!`
+        )
+      }
+    }
+  }
+
+  const createOrder = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!orderForm.clientName.trim() || !orderForm.clientPhone.trim()) return
+    const { db } = initFirebase()
+    await addDoc(collection(db, "orders"), {
+      ...orderForm,
+      type: "repair",
+      status: "accepted",
+      clientId: null,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    })
+    setOrderForm({ clientName: "", clientPhone: "", clientEmail: "", deviceModel: "", deviceIssue: "", price: 0 })
+    setShowCreateForm(false)
+    sendTG(
+      `<b>🆕 Нове замовлення (ремонт)!</b>\n\n` +
+      `<b>Клієнт:</b> ${orderForm.clientName}\n` +
+      `<b>Телефон:</b> ${orderForm.clientPhone}\n` +
+      `<b>Email:</b> ${orderForm.clientEmail || "—"}\n` +
+      `<b>Пристрій:</b> ${orderForm.deviceModel || "—"}\n` +
+      `<b>Проблема:</b> ${orderForm.deviceIssue || "—"}\n` +
+      `<b>Ціна:</b> ${orderForm.price || 0}₴`
+    )
+  }
+
   const filtered = orders.filter(
     (o) =>
-      (o.name || "").toLowerCase().includes(search.toLowerCase()) ||
-      (o.phone || "").includes(search) ||
+      (o.clientName || o.name || "").toLowerCase().includes(search.toLowerCase()) ||
+      (o.clientPhone || o.phone || "").includes(search) ||
+      (o.deviceModel || "").toLowerCase().includes(search.toLowerCase()) ||
+      (o.deviceIssue || "").toLowerCase().includes(search.toLowerCase()) ||
       (o.items || []).some((i: any) => i.name?.toLowerCase().includes(search.toLowerCase()))
   )
 
   return (
     <div>
-      <div className="flex items-center gap-4 mb-4">
+      <div className="flex items-center gap-4 mb-4 flex-wrap">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="Пошук замовлення..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
         <p className="text-sm text-muted-foreground">{filtered.length} замовлень</p>
+        <Button size="sm" onClick={() => setShowCreateForm(!showCreateForm)}>
+          <Plus className="w-4 h-4 mr-1" />
+          {showCreateForm ? "Скасувати" : "Додати ремонт"}
+        </Button>
       </div>
-      {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">Замовлень ще немає</p>}
-      {filtered.map((order) => (
-        <Card key={order.id} className="mb-2">
+
+      {/* Create repair order form */}
+      {showCreateForm && (
+        <Card className="mb-4 border-primary/30">
           <CardContent className="p-4">
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                <p className="font-medium">{order.name || "—"}</p>
-                <p className="text-sm text-muted-foreground">{order.phone}</p>
-                {order.email && <p className="text-xs text-muted-foreground">{order.email}</p>}
+            <form onSubmit={createOrder} className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Input placeholder="Ім'я клієнта *" value={orderForm.clientName} onChange={(e) => setOrderForm({ ...orderForm, clientName: e.target.value })} required />
+                <Input placeholder="Телефон *" value={orderForm.clientPhone} onChange={(e) => setOrderForm({ ...orderForm, clientPhone: e.target.value })} required />
+                <Input placeholder="Email" value={orderForm.clientEmail} onChange={(e) => setOrderForm({ ...orderForm, clientEmail: e.target.value })} />
+                <Input placeholder="Модель пристрою" value={orderForm.deviceModel} onChange={(e) => setOrderForm({ ...orderForm, deviceModel: e.target.value })} />
+                <Input placeholder="Проблема / що зробити" value={orderForm.deviceIssue} onChange={(e) => setOrderForm({ ...orderForm, deviceIssue: e.target.value })} />
+                <Input type="number" placeholder="Ціна (грн)" value={orderForm.price || ""} onChange={(e) => setOrderForm({ ...orderForm, price: parseInt(e.target.value) || 0 })} />
               </div>
-              <div className="text-right">
-                <p className="text-lg font-bold text-primary">{order.total || 0} ₴</p>
-                <p className="text-xs text-muted-foreground">
-                  {order.createdAt ? new Date(order.createdAt.seconds * 1000 || order.createdAt).toLocaleDateString("uk-UA") : ""}
-                </p>
+              <div className="flex justify-end gap-2">
+                <Button type="submit" size="sm">Створити замовлення</Button>
               </div>
-            </div>
-            {order.items && order.items.length > 0 && (
-              <div className="border-t pt-2 mt-2">
-                <p className="text-xs font-medium text-muted-foreground mb-1">Позиції:</p>
-                {order.items.map((item: any, i: number) => (
-                  <p key={i} className="text-xs text-muted-foreground">• {item.name} — {item.price} ₴</p>
-                ))}
-              </div>
-            )}
-            {order.message && (
-              <p className="text-xs text-muted-foreground mt-1 border-t pt-1">💬 {order.message}</p>
-            )}
+            </form>
           </CardContent>
         </Card>
-      ))}
+      )}
+
+      {/* Orders list */}
+      {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">Замовлень ще немає</p>}
+      {filtered.map((order) => {
+        const status = STATUS_CONFIG[order.status as string] || STATUS_CONFIG.accepted
+        return (
+          <Card key={order.id} className="mb-2">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="font-medium">{order.clientName || order.name || "—"}</p>
+                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${status.color}`}>{status.label}</span>
+                    {order.type === "cart" && <span className="text-[10px] text-muted-foreground">🛒 Кошик</span>}
+                  </div>
+                  <p className="text-xs text-muted-foreground">{order.clientPhone || order.phone}</p>
+                  {order.clientEmail && <p className="text-xs text-muted-foreground">{order.clientEmail}</p>}
+                  {order.deviceModel && <p className="text-xs mt-1">📱 {order.deviceModel}{order.deviceIssue ? ` — ${order.deviceIssue}` : ""}</p>}
+                  {order.items && order.items.length > 0 && (
+                    <div className="mt-1">
+                      {order.items.map((item: any, i: number) => (
+                        <p key={i} className="text-xs text-muted-foreground">• {item.name} ({item.quality}) — {item.price}₴</p>
+                      ))}
+                    </div>
+                  )}
+                  {order.message && <p className="text-xs text-muted-foreground mt-1">💬 {order.message}</p>}
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-lg font-bold text-primary">{order.price || order.total || 0} ₴</p>
+                  <p className="text-xs text-muted-foreground">
+                    {order.createdAt ? new Date(order.createdAt.seconds * 1000 || order.createdAt).toLocaleDateString("uk-UA") : ""}
+                  </p>
+                  {status.next && (
+                    <button
+                      onClick={() => changeStatus(order.id, order.status || "accepted")}
+                      className="text-xs text-primary hover:text-primary/80 mt-2 underline underline-offset-2"
+                    >
+                      {status.next === "in_progress" ? "Взяти в роботу →" : "Позначити готовим →"}
+                    </button>
+                  )}
+                  {!status.next && (
+                    <p className="text-xs text-green-600 mt-2">✅ Виконано</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )
+      })}
     </div>
   )
 }

@@ -110,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       provider.setCustomParameters({ prompt: "select_account" });
       const result = await signInWithPopup(auth, provider);
       await saveProfile(result.user);
-      window.location.href = "/account";
+      window.location.href = `${window.location.pathname.replace(/\/+$/, '')}/account`;
     } catch (err: any) {
       if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request") {
         console.error("Google login error:", err);

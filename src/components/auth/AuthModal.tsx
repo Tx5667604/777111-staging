@@ -2,7 +2,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import {
   Dialog,
@@ -24,7 +23,6 @@ interface AuthModalProps {
 
 export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const { loginWithGoogle, loginWithEmail, registerWithEmail } = useAuth()
-  const router = useRouter()
   const [tab, setTab] = useState("login")
 
   // Login form
@@ -58,7 +56,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     } else {
       onOpenChange(false)
       resetForms()
-      router.push("/account")
+      window.location.href = `${window.location.pathname.replace(/\/+$/, '')}/account`
     }
   }
 
@@ -74,7 +72,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     } else {
       onOpenChange(false)
       resetForms()
-      router.push("/account")
+      window.location.href = `${window.location.pathname.replace(/\/+$/, '')}/account`
     }
   }
 
@@ -82,7 +80,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     await loginWithGoogle()
     onOpenChange(false)
     resetForms()
-    router.push("/account")
+    window.location.href = `${window.location.pathname.replace(/\/+$/, '')}/account`
   }
 
   return (
