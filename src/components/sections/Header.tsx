@@ -6,6 +6,7 @@ import { MapPin, Phone, Menu, X, Wrench } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
 import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton'
+import { UserMenu } from '@/components/auth/UserMenu'
 
 const navLinks = [
   { href: '#hero', label: 'Головна' },
@@ -121,9 +122,9 @@ export default function Header() {
               </a>
             </Button>
 
-            {/* Google Login */}
+            {/* User Menu */}
             <div className="hidden sm:block">
-              <GoogleLoginButton variant="icon" />
+              <UserMenu />
             </div>
 
             {/* Mobile Menu */}
@@ -162,7 +163,7 @@ export default function Header() {
                   ))}
                 </nav>
                 <div className="mt-4 px-4">
-                  <GoogleLoginButton variant="full" />
+                  <UserMenu />
                 </div>
                 <div className="mt-8 pt-6 border-t space-y-2">
                   <Button

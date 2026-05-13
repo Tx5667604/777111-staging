@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   MapPin,
@@ -10,6 +10,10 @@ import {
   Loader2,
   Instagram,
   MessageCircle,
+  User,
+  Mail,
+  CheckCircle2,
+  LogIn,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -17,6 +21,9 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
+import { useAuth } from '@/lib/auth-context'
+import { initFirebase } from '@/lib/firebase'
+import { doc, setDoc } from 'firebase/firestore'
 
 const contactInfo = [
   {
@@ -58,32 +65,70 @@ function sendTG(text: string) {
 }
 
 export default function Contacts() {
+  const { user, profile, loginWithGoogle } = useAuth()
+
   const [formName, setFormName] = useState('')
+  const [formEmail, setFormEmail] = useState('')
   const [formPhone, setFormPhone] = useState('')
   const [formMessage, setFormMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const [initialized, setInitialized] = useState(false)
+
+  // При загрузке подставить данные из профиля (один раз)
+  useEffect(() => {
+    if (initialized) return
+    if (profile) {
+      setFormName(profile.name || '')
+      setFormEmail(profile.email || '')
+      if (profile.phone) setFormPhone(profile.phone || '')
+      setInitialized(true)
+    } else if (!user && !profile) {
+      setFormName('')
+      setFormEmail('')
+      setFormPhone('')
+      setInitialized(true)
+    }
+  }, [profile, user, initialized])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formName.trim() || !formPhone.trim() || !formMessage.trim()) {
-      toast.error('Заповніть всі поля')
+    if (!formName.trim() || !formPhone.trim()) {
+      toast.error('Заповніть ім\'я та телефон')
       return
     }
 
     setLoading(true)
     try {
-      // Just simulate sending a contact form (could extend with an API)
-      await new Promise((resolve) => setTimeout(resolve, 800))
-      toast.success("Повідомлення надіслано! Я зв'яжуся з вами найближчим часом.")
+      // Сохранить телефон в Firestore (если пользователь авторизован)
+      if (user) {
+        try {
+          const { db } = initFirebase()
+          await setDoc(doc(db, 'users', user.uid), {
+            name: formName.trim(),
+            email: formEmail.trim() || user.email || '',
+            phone: formPhone.trim(),
+            lastLogin: new Date(),
+          }, { merge: true })
+        } catch {}
+      }
+
+      // Отправить в Telegram
+      const authStatus = profile
+        ? `✅ Авторизований через Google (${profile.email})`
+        : '❌ Не авторизований'
+
       sendTG(
-        `<b>📩 Нове повідомлення з сайту!</b>\n\n` +
+        `<b>📩 Нова заявка з сайту!</b>\n\n` +
         `<b>Ім'я:</b> ${formName}\n` +
+        `<b>Email:</b> ${formEmail || '—'}\n` +
         `<b>Телефон:</b> ${formPhone}\n` +
-        `<b>Повідомлення:</b> ${formMessage}`
+        `<b>Повідомлення:</b> ${formMessage || '—'}\n\n` +
+        `<b>Статус:</b> ${authStatus}`
       )
-      setFormName('')
-      setFormPhone('')
+
+      toast.success("Повідомлення надіслано! Я зв'яжуся з вами найближчим часом.")
       setFormMessage('')
+      // Телефон и имя не сбрасываем — они сохраняются для следующего раза
     } catch {
       toast.error('Помилка надсилання. Спробуйте ще раз.')
     } finally {
@@ -201,6 +246,35 @@ export default function Contacts() {
         >
           <Card className="max-w-2xl mx-auto">
             <CardContent className="p-6 sm:p-8">
+              {/* Auth status badge */}
+              {profile ? (
+                <div className="flex items-center gap-3 mb-6 p-3 bg-primary/5 rounded-lg border border-primary/10">
+                  {profile.photoURL ? (
+                    <img src={profile.photoURL} alt="" className="w-10 h-10 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="w-5 h-5 text-primary" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{profile.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
+                  </div>
+                  <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                </div>
+              ) : !user ? (
+                <div className="flex items-center justify-between mb-6 p-3 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground">Швидше заповнення через Google</p>
+                  <button
+                    onClick={loginWithGoogle}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Увійти
+                  </button>
+                </div>
+              ) : null}
+
               <h3 className="text-lg font-semibold text-center mb-6">
                 Напишіть нам
               </h3>
@@ -208,23 +282,45 @@ export default function Contacts() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="contact-name">Ім'я</Label>
-                    <Input
-                      id="contact-name"
-                      placeholder="Ваше ім'я"
-                      value={formName}
-                      onChange={(e) => setFormName(e.target.value)}
-                      required
-                    />
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="contact-name"
+                        placeholder="Ваше ім'я"
+                        value={formName}
+                        onChange={(e) => setFormName(e.target.value)}
+                        className="pl-9"
+                        required
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="contact-phone">Телефон</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="contact-phone"
+                        type="tel"
+                        placeholder="+38 (0XX) XXX-XX-XX"
+                        value={formPhone}
+                        onChange={(e) => setFormPhone(e.target.value)}
+                        className="pl-9"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contact-email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
-                      id="contact-phone"
-                      type="tel"
-                      placeholder="+38 (0XX) XXX-XX-XX"
-                      value={formPhone}
-                      onChange={(e) => setFormPhone(e.target.value)}
-                      required
+                      id="contact-email"
+                      type="email"
+                      placeholder="email@example.com"
+                      value={formEmail}
+                      onChange={(e) => setFormEmail(e.target.value)}
+                      className="pl-9"
                     />
                   </div>
                 </div>
@@ -235,8 +331,7 @@ export default function Contacts() {
                     placeholder="Ваше повідомлення..."
                     value={formMessage}
                     onChange={(e) => setFormMessage(e.target.value)}
-                    rows={4}
-                    required
+                    rows={3}
                   />
                 </div>
                 <Button
@@ -252,7 +347,7 @@ export default function Contacts() {
                   ) : (
                     <>
                       <Send className="w-4 h-4 mr-2" />
-                      Надіслати повідомлення
+                      {profile ? 'Надіслати як ' + profile.name.split(' ')[0] : 'Надіслати повідомлення'}
                     </>
                   )}
                 </Button>

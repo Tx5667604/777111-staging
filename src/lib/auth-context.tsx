@@ -2,8 +2,16 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
-import { onAuthStateChanged, signInWithPopup, signOut, User } from "firebase/auth";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  signOut,
+  User,
+} from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { initFirebase } from "./firebase";
 
 interface UserProfile {
@@ -21,6 +29,8 @@ interface AuthContextType {
   profile: UserProfile | null;
   loading: boolean;
   loginWithGoogle: () => Promise<void>;
+  loginWithEmail: (email: string, password: string) => Promise<string>;
+  registerWithEmail: (email: string, password: string, name: string) => Promise<string>;
   logout: () => Promise<void>;
 }
 
@@ -29,6 +39,8 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   loading: true,
   loginWithGoogle: async () => {},
+  loginWithEmail: async () => "",
+  registerWithEmail: async () => "",
   logout: async () => {},
 });
 
@@ -104,6 +116,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const loginWithEmail = async (email: string, password: string): Promise<string> => {
+    try {
+      const { auth } = initFirebase();
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      await saveProfile(result.user);
+      return "";
+    } catch (err: any) {
+      return getFirebaseErrorMessage(err.code);
+    }
+  };
+
+  const registerWithEmail = async (email: string, password: string, name: string): Promise<string> => {
+    try {
+      const { auth } = initFirebase();
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(result.user, { displayName: name });
+      await saveProfile({ ...result.user, displayName: name });
+      return "";
+    } catch (err: any) {
+      return getFirebaseErrorMessage(err.code);
+    }
+  };
+
   const logout = async () => {
     const { auth } = initFirebase();
     await signOut(auth);
@@ -112,10 +147,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, profile, loading, loginWithGoogle, loginWithEmail, registerWithEmail, logout }}>
       {children}
     </AuthContext.Provider>
   );
+}
+
+function getFirebaseErrorMessage(code: string): string {
+  const messages: Record<string, string> = {
+    "auth/user-not-found": "Користувача з таким email не знайдено",
+    "auth/wrong-password": "Невірний пароль",
+    "auth/invalid-credential": "Невірний email або пароль",
+    "auth/email-already-in-use": "Цей email вже зареєстровано",
+    "auth/weak-password": "Пароль має бути не менше 6 символів",
+    "auth/invalid-email": "Невірний формат email",
+    "auth/too-many-requests": "Забагато спроб. Спробуйте пізніше",
+    "auth/network-request-failed": "Помилка мережі. Перевірте з'єднання",
+  };
+  return messages[code] || "Помилка. Спробуйте ще раз";
 }
 
 export function useAuth() {
